@@ -824,9 +824,10 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   window.addEventListener('storage',function(e){if(e.key===K.login||e.key===K.pending) renderLogin()});
   // Ao voltar da aba do login, mostra o pedido de confirmação.
   // Volta à Ponte depois do login: se a Ponte ficou em segundo plano por tempo
-  // suficiente para entrar (AUTO_MS), confirma o passo 1 e fecha a aba do Portal.
+  // suficiente para entrar (AUTO_MS; com a sessão do CAFe já aberta ou senha salva,
+  // o login leva só alguns segundos), confirma o passo 1 e fecha a aba do Portal.
   // Voltas rápidas (antes de terminar o login) só mostram o pedido de confirmação.
-  var AUTO_MS=8000,hiddenAt=0;
+  var AUTO_MS=3000,hiddenAt=0;
   function closeLoginWin(){
     try{if(loginWin&&!loginWin.closed) loginWin.close()}catch(e){}
     loginWin=null;
@@ -887,6 +888,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   // avisa antes e deixa escolher entre entrar agora ou abrir assim mesmo.
   var noLogin=$('#noLogin'),heldArticle=null;
   function loggedToday(){var t=store.get(K.login,0);return !!(t&&today(t))}
+  function loginPendingRecent(){var p=store.get(K.pending,0);return !!p&&Date.now()-p<PENDING_MS}
   function launch(r){
     noLogin.hidden=true;heldArticle=null;
     openArticle(r.url);
@@ -897,6 +899,9 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     e.preventDefault();
     var v=input.value.trim(),r=parse(v);
     if(!r){noLogin.hidden=true;showError(v?'Link não reconhecido. Copie o endereço completo da página do artigo ou use o DOI.':'Cole o link ou o DOI do artigo.');return}
+    // Clicou em "Entrar" há pouco e já está enviando o artigo: trata como login feito
+    // (a volta pode não ter sido detectada, ex.: aba recarregada pelo celular).
+    if(!loggedToday()&&loginPendingRecent()){confirmLogin();closeLoginWin()}
     if(!loggedToday()){heldArticle=r;noLogin.hidden=false;return}
     launch(r);
   });
