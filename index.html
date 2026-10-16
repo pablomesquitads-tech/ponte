@@ -81,6 +81,8 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
 html.js:not(.fonts-ready) body{opacity:0}
 /* Lenis (rolagem suave): regras do lenis.css oficial */
 html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
 .lenis:not(.lenis-autoToggle).lenis-stopped{overflow:clip}
 .lenis.lenis-smooth iframe{pointer-events:none}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;opacity:1;transition:opacity .22s ease-out}
@@ -1131,8 +1133,9 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 
   /* ---------- Rolagem suave (Lenis) ---------- */
-  if(typeof Lenis==='function'){
-    var lenis=new Lenis({
+  var lenis=null;
+  if(typeof Lenis==='function'&&!reduce){
+    lenis=new Lenis({
       duration:1.2, // Duração da inércia
       easing:function(t){return Math.min(1,1.001-Math.pow(2,-10*t))}, // Curva suave
       smoothWheel:true
@@ -1142,6 +1145,24 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       requestAnimationFrame(raf);
     };
     requestAnimationFrame(raf);
+    lenis.on('scroll',onScroll);
+
+    // Rolagem suave e alinhada ao clicar nos links internos
+    $$('a[href^="#"]').forEach(function(anchor){
+      anchor.addEventListener('click',function(e){
+        var href=anchor.getAttribute('href');
+        if(!href||href==='#') return;
+        var target=$(href);
+        if(target){
+          e.preventDefault();
+          lenis.scrollTo(target,{
+            duration:1.2,
+            easing:function(t){return Math.min(1,1.001-Math.pow(2,-10*t))}
+          });
+          if(history.pushState) history.pushState(null,'',href);
+        }
+      });
+    });
   }
 
   var items=$$('[data-reveal]');

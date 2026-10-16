@@ -1,8 +1,8 @@
 // Service worker mínimo: rede primeiro, cache como reserva (permite abrir a Ponte sem conexão).
 // Só respostas 200 do próprio domínio entram no cache: uma falha momentânea do servidor
 // (4xx/5xx) não pode virar a tela salva para uso offline.
-const CACHE = 'ponte-v3';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
+const CACHE = 'ponte-v4';
+const ASSETS = ['./', './index.html', './lenis.min.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
