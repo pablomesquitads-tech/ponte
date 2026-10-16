@@ -19,13 +19,14 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500&display=swap"></noscript>
 <script>
 document.documentElement.className+=' js';
+window.addEventListener('error',function(){document.documentElement.classList.remove('js')});
 try{var t=localStorage.getItem('ponte.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}
 </script>
 <style>
 /* ---------- Tokens ---------- */
 :root{
   --paper:#F5F3EE; --paper-2:#ECE9E1; --surface:#FFFFFF;
-  --ink:#0E1B2C; --ink-2:#3F4B5A; --ink-3:#6A7584;
+  --ink:#0E1B2C; --ink-2:#3F4B5A; --ink-3:#5E6878;
   --rule:#E2DED5; --rule-2:#CFCABE;
   --brand:#0B3B75; --brand-hover:#082F5F; --brand-ink:#FFFFFF; --brand-soft:#E8EEF7; --brand-line:#B9CBE6;
   --ok:#1E7A4C; --ok-soft:#E3F1E9; --err:#B42318; --err-soft:#FBE9E7;
@@ -98,7 +99,16 @@ kbd,.kbd{font:500 .72rem/1 var(--mono);color:var(--ink-2);background:var(--surfa
 .hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--rule) 1px,transparent 1px);background-size:100% 34px;opacity:.55;-webkit-mask-image:radial-gradient(ellipse 60% 70% at 15% 25%,#000 0%,transparent 72%);mask-image:radial-gradient(ellipse 60% 70% at 15% 25%,#000 0%,transparent 72%);pointer-events:none}
 .hero .wrap{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.02fr);gap:clamp(40px,6vw,88px);align-items:start}
 .hero-copy{padding-top:clamp(0px,3vw,36px)}
-@media (max-width:940px){.hero .wrap{grid-template-columns:1fr}.hero-copy{padding-top:0}}
+@media (max-width:940px){
+  .hero .wrap{grid-template-columns:1fr;gap:0}
+  .hero-copy{display:contents}
+  .hero-copy>.eyebrow{order:1;justify-self:start}
+  .hero h1{order:2}
+  .panel{order:3;margin-top:28px}
+  .lead{order:4;margin-top:40px}
+  .facts{order:5}
+  .audience{order:6}
+}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font:600 .74rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
 .eyebrow::before{content:"";width:28px;height:1px;background:currentColor}
 h1{font:600 clamp(2.35rem,4.7vw,3.7rem)/1.05 var(--serif);letter-spacing:-.022em;margin:22px 0 0;text-wrap:balance}
@@ -134,6 +144,11 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
 .status{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.5;color:var(--ink-2);background:var(--ok-soft);border-radius:10px;padding:11px 13px;animation:rise .4s var(--ease)}
 .status .ico{width:17px;height:17px;color:var(--ok);margin-top:2px}
 .status b{color:var(--ink);font-weight:600}
+.pending{display:flex;gap:10px;align-items:center;font-size:.86rem;line-height:1.45;color:var(--ink-2);background:var(--brand-soft);border-radius:10px;padding:7px 7px 7px 13px;animation:rise .4s var(--ease)}
+.pending .ico{width:17px;height:17px;color:var(--brand)}
+.pending span{flex:1}
+.pending .link-btn{color:var(--brand);font-weight:600;padding:8px 10px}
+.pending .link-btn:hover{background:var(--surface)}
 
 /* Buttons */
 .btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:10px;font:600 .98rem/1 var(--sans);padding:16px 22px;border-radius:12px;border:1px solid transparent;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;transition:transform .16s var(--ease),background-color .2s,border-color .2s,color .2s,box-shadow .2s}
@@ -374,7 +389,8 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
                 <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https://www.periodicos.capes.gov.br/secure&amp;entityID=https://idp-cafe.ufpb.br/idp/shibboleth" target="_blank" rel="noopener">
                   <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico out"><use href="#i-out"/></svg>
                 </a>
-                <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Autenticação iniciada hoje às <b id="loginTime">--:--</b> neste navegador. Se um artigo abrir na página inicial do Portal, refaça este passo.</span></p>
+                <div class="pending" id="loginPending" hidden><svg class="ico"><use href="#i-clock"/></svg><span>Login aberto em outra aba. Terminou lá?</span><button type="button" class="link-btn" id="confirmLogin">Já entrei</button></div>
+                <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Login confirmado às <b id="loginTime">--:--</b> neste navegador. Se um artigo abrir na página inicial do Portal, refaça este passo.</span></p>
               </div>
             </div>
           </li>
@@ -542,7 +558,7 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
   'use strict';
   var PREFIX='https://ez15.periodicos.capes.gov.br/login?url=';
   var SUFFIX='.ez15.periodicos.capes.gov.br';
-  var K={login:'ponte.login',recent:'ponte.recent',theme:'ponte.theme'};
+  var K={login:'ponte.login',pending:'ponte.loginPending',recent:'ponte.recent',theme:'ponte.theme'};
   var $=function(s){return document.querySelector(s)};
   var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
   var store={
@@ -566,6 +582,8 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
     [/webofscience\.com$/,'Web of Science'],[/ebsco(host)?\.com$/,'EBSCO'],[/proquest\.com$/,'ProQuest'],[/iop\.org$/,'IOP'],
     [/mdpi\.com$/,'MDPI'],[/frontiersin\.org$/,'Frontiers'],[/plos\.org$/,'PLOS']
   ];
+  // Acesso aberto ou sem paywall: o proxy não ajuda e pode recusar o host.
+  var OPEN=/(^|\.)(mdpi\.com|frontiersin\.org|plos\.org|ncbi\.nlm\.nih\.gov|europepmc\.org|scielo\.(org|br)|arxiv\.org|biorxiv\.org|medrxiv\.org|biomedcentral\.com|peerj\.com|elifesciences\.org|doaj\.org|zenodo\.org|scholar\.google\.com(\.br)?)$/i;
   function publisher(host){
     for(var i=0;i<PUBS.length;i++) if(PUBS[i][0].test(host)) return PUBS[i][1];
     return host.replace(/^www\./,'');
@@ -575,10 +593,14 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
   function parse(raw){
     var s=(raw||'').trim();
     if(!s) return null;
-    var doi=s.match(/(10\.\d{4,9}\/[^\s"<>]+)/);
-    if(doi&&(/^(doi:\s*)?10\./i.test(s)||/doi\.org\//i.test(s))){
-      var d=doi[1].replace(/[.,;)]+$/,'');
-      return {url:PREFIX+'https://doi.org/'+d,label:'DOI',display:d};
+    var t=s;
+    if(/doi\.org\//i.test(t)){try{t=decodeURIComponent(t)}catch(e){}}
+    var doi=t.match(/(10\.\d{4,9}\/[^\s"]+)/);
+    // DOI puro, link doi.org ou referência colada inteira (texto com espaços).
+    if(doi&&(/^(doi:\s*)?10\./i.test(t)||/doi\.org\//i.test(t)||/\s/.test(t))){
+      var d=doi[1].replace(/[.,;]+$/,'');
+      while(/\)$/.test(d)&&d.split('(').length<d.split(')').length) d=d.slice(0,-1).replace(/[.,;]+$/,'');
+      return {url:PREFIX+'https://doi.org/'+encodeURI(d).replace(/#/g,'%23').replace(/\?/g,'%3F'),label:'DOI',display:d};
     }
     if(!/^https?:\/\//i.test(s)) s='https://'+s;
     var u; try{u=new URL(s)}catch(e){return null}
@@ -586,8 +608,9 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
     var host=u.hostname, path=u.pathname+u.search;
     var display=host.replace(/^www\./,'')+(path==='/'?'':path);
     if(/periodicos\.capes\.gov\.br$/i.test(host)) return {url:'https://'+host+path,label:'Portal CAPES',display:display};
+    if(OPEN.test(host)) return {url:u.href,label:publisher(host)+' · acesso aberto',display:display,open:true};
     // The Lancet e Cell não respondem pelo proxy; o mesmo artigo abre pela ScienceDirect (código PII).
-    var pii=path.match(/PII(S[0-9X()\-]+)/i);
+    var pii=path.match(/(?:PII)?(S\d{4}-?\d{3}[\dX]\(?\d{2}\)?\d{5}-?[\dX])/i);
     if(pii&&/(thelancet|cell)\.com$/i.test(host)) return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:publisher(host)+' · ScienceDirect',display:display};
     // Demais sites: o domínio vira subdomínio do proxy (hífens dobram, pontos viram hífens).
     return {url:'https://'+host.replace(/-/g,'--').replace(/\./g,'-')+SUFFIX+path,label:publisher(host),display:display};
@@ -618,14 +641,17 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
 
   /* ---------- Passo 1: estado do login ---------- */
   var step1=$('#step1'),step2=$('#step2'),loginBtn=$('#loginBtn'),loginLabel=$('#loginLabel'),loginStatus=$('#loginStatus'),loginTime=$('#loginTime');
-  function today(t){return new Date(t).toDateString()===new Date().toDateString()}
+  var SESSION=4*3600e3,PENDING=30*60e3;
+  var loginPending=$('#loginPending');
+  function fresh(t,ms){return !!t&&Date.now()-t<ms}
   function hhmm(t){return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
   function renderLogin(){
-    var t=store.get(K.login,0), ok=!!(t&&today(t));
+    var t=store.get(K.login,0), ok=fresh(t,SESSION), wait=!ok&&fresh(store.get(K.pending,0),PENDING);
     step1.classList.toggle('done',ok);
     step1.classList.toggle('current',!ok);
     step2.classList.toggle('current',ok);
     loginStatus.hidden=!ok;
+    loginPending.hidden=!wait;
     if(ok){
       loginTime.textContent=hhmm(t);
       loginLabel.textContent='Autenticar novamente';
@@ -635,10 +661,13 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
       loginBtn.classList.remove('btn-secondary');loginBtn.classList.add('btn-primary');
     }
   }
+  function confirmLogin(){store.set(K.login,Date.now());store.del(K.pending);renderLogin()}
   loginBtn.addEventListener('click',function(){
-    store.set(K.login,Date.now());
+    store.set(K.pending,Date.now());
     setTimeout(function(){renderLogin();toast('Conclua o login na aba aberta e volte para cá')},400);
   });
+  $('#confirmLogin').addEventListener('click',function(){confirmLogin();toast('Pronto. Agora informe o artigo');input.focus()});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)renderLogin()});
 
   /* ---------- Passo 2: campo, prévia e envio ---------- */
   var form=$('#f'),input=$('#in'),field=$('#field'),preview=$('#preview'),pvLabel=$('#pvLabel'),pvUrl=$('#pvUrl'),err=$('#err'),errMsg=$('#errMsg');
@@ -673,7 +702,8 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
     if(!r){showError(v?'Não foi possível reconhecer este endereço. Copie o link completo da página do artigo ou informe o DOI.':'Cole o endereço do artigo ou o DOI para continuar.');return}
     openArticle(r.url);
     addRecent(r);
-    toast('Artigo aberto em uma nova aba');
+    if(!loginPending.hidden) confirmLogin();
+    toast(r.open?'Acesso aberto: o artigo abriu direto, sem o proxy':'Artigo aberto em uma nova aba');
   });
 
   $('#pasteBtn').addEventListener('click',function(){
@@ -731,7 +761,7 @@ h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white
   $('#clearRecent').addEventListener('click',function(){store.del(K.recent);renderRecent();toast('Histórico apagado deste navegador')});
 
   /* ---------- Bookmarklet ---------- */
-  var BM="javascript:(function(){var h=location.hostname,p=location.pathname+location.search,S='"+SUFFIX+"';if(/periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/PII(S[0-9X()\\-]+)/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
+  var BM="javascript:(function(){var h=location.hostname,p=location.pathname+location.search,S='"+SUFFIX+"';if(/periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/(?:PII)?(S\\d{4}-?\\d{3}[\\dX]\\(?\\d{2}\\)?\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
   var bm=$('#bm');
   bm.setAttribute('href',BM);
   bm.addEventListener('click',function(e){
