@@ -478,13 +478,13 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
             <span class="idx" aria-hidden="true"><span class="n">1</span><svg class="ico"><use href="#i-check"/></svg></span>
             <div class="step-body">
               <h3>Autentique-se via CAFe</h3>
-              <p class="desc">Use suas credenciais institucionais na página oficial da UFPB. Uma vez por sessão.</p>
+              <p class="desc">O login abre em nova aba, na página oficial da UFPB. Uma vez por sessão.</p>
               <div class="actions">
-                <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https%3A%2F%2Fponteufpb.vercel.app%2F%3Fauth%3Dok&amp;entityID=https://idp-cafe.ufpb.br/idp/shibboleth" rel="noopener">
+                <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https%3A%2F%2Fwww.periodicos.capes.gov.br%2F&amp;entityID=https%3A%2F%2Fidp-cafe.ufpb.br%2Fidp%2Fshibboleth" target="_blank" rel="noopener">
                   <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico go"><use href="#i-go"/></svg>
                 </a>
                 <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Login confirmado às <b id="loginTime">--:--</b>. Se o artigo abrir na página inicial do Portal, repita este passo.</span></p>
-                <p class="status pending" id="loginPending" hidden><svg class="ico"><use href="#i-clock"/></svg><span>Fez login, mas não voltou para cá? <button type="button" class="inline-btn" id="confirmLogin">Confirmar login</button></span></p>
+                <p class="status pending" id="loginPending" hidden><svg class="ico"><use href="#i-clock"/></svg><span>Concluiu o login na outra aba? <button type="button" class="inline-btn" id="confirmLogin">Confirmar login</button></span></p>
               </div>
             </div>
           </li>
@@ -693,21 +693,42 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     return host.replace(/^www\./,'');
   }
 
+  // DOI: tira pontuação final e só remove ")" se estiver desbalanceado, porque
+  // DOIs SICI (Wiley) têm parênteses, "<", ">" e "#" legítimos.
+  function cleanDoi(d){
+    d=d.replace(/[.,;]+$/,'');
+    while(/\)$/.test(d)&&d.split(')').length>d.split('(').length) d=d.slice(0,-1).replace(/[.,;]+$/,'');
+    return d;
+  }
+  // Codifica tudo menos "/", para "?", "&" e "#" do DOI não virarem query ou âncora.
+  function doiUrl(d){return 'https://doi.org/'+encodeURIComponent(d).replace(/%2F/gi,'/')}
+  // Só domínios públicos: sem IP, porta, credenciais ou nomes de rede interna.
+  function publicHost(h){
+    if(!h||h.length>253) return false;
+    if(/^[\d.]+$/.test(h)||h.indexOf(':')>=0||h.charAt(0)==='[') return false;
+    if(/(^|\.)(localhost|local|localdomain|internal|intranet|lan|home|corp|test|example|invalid|onion)$/i.test(h)) return false;
+    return /^(?!-)[a-z0-9-]{1,63}(?:\.(?!-)[a-z0-9-]{1,63})+$/i.test(h)&&!/-\./.test(h)&&!/-$/.test(h);
+  }
+
   // Retorna {url, label, display} ou null.
   function parse(raw){
     var s=(raw||'').trim();
-    if(!s) return null;
-    var doi=s.match(/(10\.\d{4,9}\/[^\s"<>]+)/);
+    if(!s||s.length>2048) return null;
+    s=s.replace(/^[("'\[]+/,'');
+    if(/doi\.org\//i.test(s)&&/%[0-9a-f]{2}/i.test(s)){try{s=decodeURIComponent(s)}catch(e){}}
+    var doi=s.match(/(10\.\d{4,9}\/[^\s"]+)/);
     if(doi&&(/^(doi:\s*)?10\./i.test(s)||/doi\.org\//i.test(s))){
-      var d=doi[1].replace(/[.,;)]+$/,'');
-      return {url:PREFIX+'https://doi.org/'+d,label:'DOI',display:d};
+      var d=cleanDoi(doi[1]);
+      return {url:PREFIX+doiUrl(d),label:'DOI',display:d};
     }
     if(!/^https?:\/\//i.test(s)) s='https://'+s;
     var u; try{u=new URL(s)}catch(e){return null}
-    if(u.hostname.indexOf('.')<0) return null;
+    if(u.protocol!=='https:'&&u.protocol!=='http:') return null;
+    if(u.username||u.password||u.port) return null;
+    if(!publicHost(u.hostname)) return null;
     var host=u.hostname, path=u.pathname+u.search;
     var display=host.replace(/^www\./,'')+(path==='/'?'':path);
-    if(/periodicos\.capes\.gov\.br$/i.test(host)) return {url:'https://'+host+path,label:'Portal CAPES',display:display};
+    if(/(^|\.)periodicos\.capes\.gov\.br$/i.test(host)) return {url:'https://'+host+path,label:'Portal CAPES',display:display};
     // The Lancet e Cell não respondem pelo proxy; o mesmo artigo abre pela ScienceDirect (código PII).
     var pii=path.match(/PII(S[0-9X()\-]+)/i);
     if(pii&&/(thelancet|cell)\.com$/i.test(host)) return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:publisher(host)+' · ScienceDirect',display:display};
@@ -743,14 +764,14 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   function today(t){return new Date(t).toDateString()===new Date().toDateString()}
   function hhmm(t){return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
   
-  // Retorna diretamente para a Ponte após a validação no CAFe / UFPB
-  var returnTarget=(location.protocol==='http:'||location.protocol==='https:')
-    ?(location.origin+location.pathname+'?auth=ok')
-    :'https://ponteufpb.vercel.app/?auth=ok';
-  loginBtn.href='https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target='+encodeURIComponent(returnTarget)+'&entityID=https://idp-cafe.ufpb.br/idp/shibboleth';
+  // O target precisa ficar em www.periodicos.capes.gov.br: o SP da CAPES monta o
+  // AssertionConsumerServiceURL a partir do host do target, e um host fora da
+  // federação CAFe (ex.: ponteufpb.vercel.app) faz o IdP da UFPB recusar o pedido
+  // ("Web Login Service - Unable to Respond"). Por isso o login abre em nova aba
+  // e a Ponte continua aberta para o passo 2.
 
-  // Concluído só com confirmação: retorno do CAFe com ?auth=ok ou, se o
-  // redirecionamento falhar, confirmação manual. O clique apenas deixa o passo pendente.
+  // Concluído só com confirmação manual: a Ponte não tem como ler a sessão do
+  // Portal. O clique apenas deixa o passo pendente.
   var PENDING_MS=30*60*1000;
   var loginPending=$('#loginPending');
   function renderLogin(){
@@ -772,22 +793,9 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     renderLogin();
   }
 
-  if(location.search.indexOf('auth=ok')>=0||location.hash.indexOf('auth=ok')>=0){
-    confirmLogin();
-    setTimeout(function(){
-      toast('Login confirmado. Cole o link ou o DOI no passo 2.');
-      input.focus({preventScroll:true});
-    },350);
-    if(window.history&&history.replaceState){
-      try{
-        var cleanSearch=location.search.replace(/[?&]auth=ok(&|$)/,function(m,p1){return p1?'?':'';}).replace(/\?$/,'');
-        var cleanUrl=location.pathname+cleanSearch+location.hash.replace(/[#&]auth=ok(&|$)/,'');
-        history.replaceState(null,document.title,cleanUrl||'/');
-      }catch(e){}
-    }
-  }
-
-  loginBtn.addEventListener('click',function(){store.set(K.pending,Date.now())});
+  loginBtn.addEventListener('click',function(){store.set(K.pending,Date.now());renderLogin()});
+  // Ao voltar da aba do login, mostra o pedido de confirmação.
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible') renderLogin()});
   $('#confirmLogin').addEventListener('click',function(){
     confirmLogin();
     toast('Login confirmado');
@@ -798,10 +806,10 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
   /* ---------- Passo 2: campo, prévia e envio ---------- */
   var form=$('#f'),field=$('#field'),preview=$('#preview'),pvLabel=$('#pvLabel'),pvUrl=$('#pvUrl'),err=$('#err'),errMsg=$('#errMsg');
-  var warmed={};
+  var warmed={},warmCount=0,WARM_MAX=6;
   function warm(url){
     try{var o=new URL(url).origin}catch(e){return}
-    if(warmed[o]) return; warmed[o]=1;
+    if(warmed[o]||warmCount>=WARM_MAX) return; warmed[o]=1; warmCount++;
     var l=document.createElement('link');l.rel='preconnect';l.href=o;document.head.appendChild(l);
   }
   function update(){
@@ -867,13 +875,19 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     store.set(K.recent,list.slice(0,5));
     renderRecent();
   }
+  // Só reabre endereços que a própria Ponte gera (proxy ou Portal CAPES).
+  function safeTarget(url){
+    try{var u=new URL(url)}catch(e){return false}
+    return u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&/(^|\.)periodicos\.capes\.gov\.br$/i.test(u.hostname);
+  }
   function renderRecent(){
     var list=store.get(K.recent,[]);
     if(!Array.isArray(list)) list=[];
     recentList.textContent='';
+    list=list.filter(function(x){return x&&typeof x.url==='string'&&safeTarget(x.url)});
     recent.hidden=!list.length;
     list.forEach(function(x){
-      if(!x||typeof x.url!=='string'||!/^https:\/\//.test(x.url)) return;
+      if(typeof x.t!=='number'||!isFinite(x.t)||x.t<0) x.t=Date.now();
       var li=document.createElement('li'),a=document.createElement('a');
       a.href=x.url;a.target='_blank';a.rel='noopener';
       var s=document.createElement('span');s.className='src';s.textContent=x.label||'Artigo';
@@ -887,7 +901,9 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   $('#clearRecent').addEventListener('click',function(){store.del(K.recent);renderRecent();toast('Recentes apagados')});
 
   /* ---------- Bookmarklet ---------- */
-  var BM="javascript:(function(){var h=location.hostname,p=location.pathname+location.search,S='"+SUFFIX+"';if(/periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/PII(S[0-9X()\\-]+)/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
+  // Só age em páginas http(s) com domínio público: num PDF local (file:///C:/Users/...)
+  // ou num IP, avisa em vez de mandar o caminho para o proxy.
+  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/PII(S[0-9X()\\-]+)/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
   var bm=$('#bm');
   bm.setAttribute('href',BM);
   bm.addEventListener('click',function(e){

@@ -1,5 +1,7 @@
 // Service worker mínimo: rede primeiro, cache como reserva (permite abrir a Ponte sem conexão).
-const CACHE = 'ponte-v1';
+// Só respostas 200 do próprio domínio entram no cache: uma falha momentânea do servidor
+// (4xx/5xx) não pode virar a tela salva para uso offline.
+const CACHE = 'ponte-v2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -15,15 +17,25 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
+  const req = e.request;
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== self.location.origin) return;
+  const navigate = req.mode === 'navigate';
   e.respondWith(
-    fetch(e.request)
+    fetch(req)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
+        if (res && res.status === 200 && res.type === 'basic') {
+          const copy = res.clone();
+          e.waitUntil(caches.open(CACHE).then((c) => c.put(req, copy)));
+        }
         return res;
       })
-      .catch(() => caches.match(e.request).then((r) => r || caches.match('./index.html')))
+      .catch(() =>
+        caches.match(req, { ignoreSearch: navigate }).then((r) => {
+          if (r) return r;
+          if (navigate) return caches.match('./index.html');
+          return Response.error();
+        })
+      )
   );
 });
