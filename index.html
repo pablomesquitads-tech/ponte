@@ -480,11 +480,11 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
               <h3>Autentique-se via CAFe</h3>
               <p class="desc">O login abre em nova aba, na página oficial da UFPB. Uma vez por sessão.</p>
               <div class="actions">
-                <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https%3A%2F%2Fwww.periodicos.capes.gov.br%2F&amp;entityID=https%3A%2F%2Fidp-cafe.ufpb.br%2Fidp%2Fshibboleth" target="_blank" rel="noopener">
+                <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https%3A%2F%2Fwww.periodicos.capes.gov.br%2F%3Foption%3Dcom_pezproxy%26controller%3Dauth%26view%3Dpezproxyauth%26url%3Dhttps%3A%2F%2Fponteufpb.vercel.app%2F%3Fauth%3Dok&amp;entityID=https%3A%2F%2Fidp-cafe.ufpb.br%2Fidp%2Fshibboleth" target="_blank" rel="noopener">
                   <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico go"><use href="#i-go"/></svg>
                 </a>
                 <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Login confirmado às <b id="loginTime">--:--</b>. Se o artigo abrir na página inicial do Portal, repita este passo.</span></p>
-                <p class="status pending" id="loginPending" hidden><svg class="ico"><use href="#i-clock"/></svg><span>Concluiu o login na outra aba? <button type="button" class="inline-btn" id="confirmLogin">Confirmar login</button></span></p>
+                <p class="status pending" id="loginPending" hidden><svg class="ico"><use href="#i-clock"/></svg><span>O login terminou no Portal CAPES e não voltou para cá? <button type="button" class="inline-btn" id="confirmLogin">Confirmar login</button></span></p>
               </div>
             </div>
           </li>
@@ -767,11 +767,18 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   // O target precisa ficar em www.periodicos.capes.gov.br: o SP da CAPES monta o
   // AssertionConsumerServiceURL a partir do host do target, e um host fora da
   // federação CAFe (ex.: ponteufpb.vercel.app) faz o IdP da UFPB recusar o pedido
-  // ("Web Login Service - Unable to Respond"). Por isso o login abre em nova aba
-  // e a Ponte continua aberta para o passo 2.
+  // ("Web Login Service - Unable to Respond"). Para voltar à Ponte, o target é a
+  // autenticação do proxy no próprio Portal (com_pezproxy), o mesmo caminho que o
+  // ez15 usa: com a sessão CAFe ativa, ela libera o proxy e segue para "url".
+  // O login abre em nova aba; se o retorno falhar, a Ponte original continua aberta.
+  var returnUrl=(location.protocol==='https:'||location.protocol==='http:')
+    ?location.origin+location.pathname+'?auth=ok'
+    :'https://ponteufpb.vercel.app/?auth=ok';
+  var pezAuth='https://www.periodicos.capes.gov.br/?option=com_pezproxy&controller=auth&view=pezproxyauth&url='+returnUrl;
+  loginBtn.href='https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target='+encodeURIComponent(pezAuth)+'&entityID='+encodeURIComponent('https://idp-cafe.ufpb.br/idp/shibboleth');
 
-  // Concluído só com confirmação manual: a Ponte não tem como ler a sessão do
-  // Portal. O clique apenas deixa o passo pendente.
+  // Concluído com o retorno ?auth=ok ou, se ele falhar, com confirmação manual.
+  // O clique apenas deixa o passo pendente.
   var PENDING_MS=30*60*1000;
   var loginPending=$('#loginPending');
   function renderLogin(){
@@ -793,7 +800,18 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     renderLogin();
   }
 
+  if(/[?&]auth=ok(&|$)/.test(location.search)){
+    confirmLogin();
+    setTimeout(function(){
+      toast('Login confirmado. Cole o link ou o DOI no passo 2.');
+      input.focus({preventScroll:true});
+    },350);
+    try{history.replaceState(null,document.title,location.pathname+location.hash)}catch(e){}
+  }
+
   loginBtn.addEventListener('click',function(){store.set(K.pending,Date.now());renderLogin()});
+  // O retorno abre a Ponte na aba do login; a aba original atualiza junto.
+  window.addEventListener('storage',function(e){if(e.key===K.login||e.key===K.pending) renderLogin()});
   // Ao voltar da aba do login, mostra o pedido de confirmação.
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible') renderLogin()});
   $('#confirmLogin').addEventListener('click',function(){
