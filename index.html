@@ -473,7 +473,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     <div class="wrap hero-grid">
       <div class="hero-copy">
       <h1 id="hero-title" data-reveal>O acervo dos <span class="nw">Periódicos CAPES,</span> <em>fora do campus.</em></h1>
-      <p class="lead" data-reveal style="--d:.08s">Entre com a conta da UFPB, cole o link ou o DOI e o texto completo abre em nova aba.</p>
+      <p class="lead" data-reveal style="--d:.08s">Entre com o login do SIGAA, volte para cá e cole o link ou o DOI do artigo. O texto completo abre em nova aba.</p>
       </div>
       <section class="panel" id="acesso" aria-labelledby="panel-title" data-reveal style="--d:.12s">
         <div class="panel-head">
@@ -484,8 +484,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
           <li class="step current" id="step1">
             <span class="idx" aria-hidden="true"><span class="n">1</span><svg class="ico"><use href="#i-check"/></svg></span>
             <div class="step-body">
-              <h3>Autentique-se via CAFe</h3>
-              <p class="desc">O login abre em nova aba, na página oficial da UFPB. Uma vez por sessão.</p>
+              <h3>Faça login na UFPB</h3>
+              <p class="desc">A página da UFPB abre em outra aba. Entre com o login do SIGAA e volte para cá.</p>
               <div class="actions">
                 <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https%3A%2F%2Fwww.periodicos.capes.gov.br%2Fsecure&amp;entityID=https%3A%2F%2Fidp-cafe.ufpb.br%2Fidp%2Fshibboleth" target="_blank" rel="noopener">
                   <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico go"><use href="#i-go"/></svg>
@@ -498,8 +498,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
           <li class="step" id="step2">
             <span class="idx" aria-hidden="true"><span class="n">2</span><svg class="ico"><use href="#i-check"/></svg></span>
             <div class="step-body">
-              <h3>Informe o artigo</h3>
-              <p class="desc">Cole o link da página do artigo ou o DOI.</p>
+              <h3>Cole o link ou o DOI</h3>
+              <p class="desc">Copie o endereço do artigo no site da editora, ou o DOI, e clique em Abrir artigo.</p>
               <form class="actions" id="f" novalidate>
                 <label class="sr" for="in">Link ou DOI do artigo</label>
                 <div class="field" id="field">
@@ -600,7 +600,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
         <article class="card" data-reveal style="--d:.08s">
           <span class="tag">Todos os dispositivos</span>
           <h3>Salve a Ponte</h3>
-          <p>No computador, favorite com <span class="keys"><kbd data-mod>Ctrl</kbd><kbd>D</kbd></span>. No celular, abra o menu do navegador e escolha <strong>Adicionar à tela de início</strong>; a Ponte passa a abrir como aplicativo.</p>
+          <p>No computador, favorite com <span class="keys"><kbd data-mod>Ctrl</kbd><kbd>D</kbd></span>. No Android, abra o menu do navegador e escolha <strong>Adicionar à tela inicial</strong>. No iPhone, toque em <strong>Compartilhar</strong> e depois em <strong>Adicionar à Tela de Início</strong>.</p>
           <div class="homescreen" aria-hidden="true">
             <span class="app"><i></i>Agenda</span>
             <span class="app me"><i><svg class="ico"><use href="#i-mark"/></svg></i>Ponte</span>
@@ -637,16 +637,16 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
             <div class="answer">Na página do artigo, em geral perto do título ou da referência, no formato <code>10.xxxx/…</code>. Cole com ou sem o prefixo <code>doi.org/</code>.</div>
           </details>
           <details>
-            <summary>Minha senha passa por esta página?<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Não. O login ocorre no servidor de identidade da UFPB (<code>idp-cafe.ufpb.br</code>). Esta página não coleta, armazena nem transmite credenciais.</div>
+            <summary>Depois do login, fui parar no Portal CAPES.<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">É normal. A CAPES sempre termina o login no Portal. Volte para a aba da Ponte, que ela confirma o acesso e fecha a aba do Portal. Se isso não acontecer, toque em <strong>Confirmar login</strong>.</div>
           </details>
           <details>
-            <summary>O uso da Ponte é permitido?<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Sim. A Ponte só monta o endereço do proxy oficial da CAPES. O acesso depende do seu login no CAFe e segue os termos que a CAPES contrata para a UFPB.</div>
+            <summary>A página de login aparece pequena no celular.<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">A página é da UFPB e não se adapta a telas pequenas. Toque no campo de login para ampliar, ou aproxime com dois dedos.</div>
           </details>
           <details>
-            <summary>Por que esta ferramenta existe?<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Com o fim do antigo proxy institucional, o acesso remoto passou a exigir login CAFe no Portal de Periódicos. A Ponte reduz esse caminho a dois passos.</div>
+            <summary>Minha senha passa por esta página? O uso é permitido?<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">A senha não passa por aqui. O login acontece no servidor da UFPB (<code>idp-cafe.ufpb.br</code>), e esta página não coleta, armazena nem transmite credenciais. O uso é permitido, porque a Ponte só monta o endereço do proxy oficial da CAPES e o acesso segue os termos que a CAPES contrata para a UFPB.</div>
           </details>
         </div>
       </div>
