@@ -78,7 +78,7 @@ try{var t=localStorage.getItem('ponte.theme');if(t==='dark'||t==='light')documen
 [hidden]{display:none!important}
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-html:not(.fonts-ready) body{opacity:0}
+html.js:not(.fonts-ready) body{opacity:0}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;opacity:1;transition:opacity .22s ease-out}
 /* Troca de tema atômica: sem transições parciais (que deixavam a página num estado
    intermediário, com bordas e fundos de temas diferentes). Onde houver suporte,
@@ -703,11 +703,12 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
   // DOI: tira pontuação final e só remove ")" se estiver desbalanceado, porque
   // DOIs SICI (Wiley) têm parênteses, "<", ">" e "#" legítimos.
-  function cleanDoi(d){
-    d=d.replace(/[.,;]+$/,'');
-    while(/\)$/.test(d)&&d.split(')').length>d.split('(').length) d=d.slice(0,-1).replace(/[.,;]+$/,'');
-    return d;
+  function trimTail(x,punct){
+    x=x.replace(punct,'');
+    while(/\)$/.test(x)&&x.split(')').length>x.split('(').length) x=x.slice(0,-1).replace(punct,'');
+    return x;
   }
+  function cleanDoi(d){return trimTail(d,/[.,;]+$/)}
   // Codifica tudo menos "/", para "?", "&" e "#" do DOI não virarem query ou âncora.
   function doiUrl(d){return 'https://doi.org/'+encodeURIComponent(d).replace(/%2F/gi,'/')}
   // Só domínios públicos: sem IP, porta, credenciais ou nomes de rede interna.
@@ -749,13 +750,11 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   function parse(raw){
     var s=(raw||'').trim();
     if(!s||s.length>2048) return null;
-    s=s.replace(/^[("'\[]+/,'');
+    s=s.replace(/^[("'\[<]+/,'');
     // Texto com título e link (o "compartilhar" do celular copia os dois): usa o link.
-    var link=s.match(/https?:\/\/[^\s"'<>]+/i);
-    if(link&&link[0]!==s){
-      s=link[0].replace(/[.,;:!?]+$/,'');
-      while(/\)$/.test(s)&&s.split(')').length>s.split('(').length) s=s.slice(0,-1);
-    }
+    // Campo só com o link: usa-o inteiro (DOIs SICI da Wiley têm "<" e ">" no caminho).
+    var link=!/\s/.test(s)&&/^https?:\/\//i.test(s)?[s]:s.match(/https?:\/\/[^\s"'<>]+/i);
+    if(link) s=trimTail(link[0],/[.,;:!?'"\]>]+$/);
     if(/doi\.org\//i.test(s)&&/%[0-9a-f]{2}/i.test(s)){try{s=decodeURIComponent(s)}catch(e){}}
     var doi=s.match(/(10\.\d{4,9}\/[^\s"]+)/);
     // DOI puro (mesmo no meio de um texto) ou link do doi.org.
@@ -767,7 +766,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     var u; try{u=new URL(s)}catch(e){return null}
     u=unwrap(u); if(!u) return null;
     if(/doi\.org$/i.test(u.hostname)&&/^\/10\./.test(u.pathname)){
-      var d2=cleanDoi(decodeURIComponent(u.pathname.slice(1)));
+      var p2=u.pathname.slice(1);try{p2=decodeURIComponent(p2)}catch(e){}
+      var d2=cleanDoi(p2);
       return {url:PREFIX+doiUrl(d2),label:'DOI',display:d2};
     }
     if(u.protocol!=='https:'&&u.protocol!=='http:') return null;
@@ -784,27 +784,11 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     return {url:'https://'+host.replace(/-/g,'--').replace(/\./g,'-')+SUFFIX+path,label:publisher(host),display:display};
   }
 
-  /* ---------- Tela de carregamento da nova aba ---------- */
-  var LOADING='<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Abrindo artigo · Ponte</title><style>'+
-    'body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F5F3EE;color:#0E1B2C;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px;box-sizing:border-box;text-align:center}'+
-    '.b{max-width:430px}.m{width:48px;height:48px;border-radius:13px;background:#0B3B75;display:grid;place-items:center;margin:0 auto 24px}'+
-    'h1{font:600 1.35rem/1.3 Georgia,"Times New Roman",serif;margin:0;letter-spacing:-.01em}p{color:#3F4B5A;margin:10px 0 0;font-size:.95rem}'+
-    '.r{height:3px;width:180px;border-radius:3px;background:#E2DED5;overflow:hidden;margin:28px auto 0}.r i{display:block;height:100%;width:40%;border-radius:3px;background:#0B3B75;animation:a 1.25s cubic-bezier(.4,0,.2,1) infinite}'+
-    '@keyframes a{from{transform:translateX(-100%)}to{transform:translateX(250%)}}'+
-    '@media(prefers-color-scheme:dark){body{background:#0B1220;color:#E8ECF2}p{color:#AEB8C6}.r{background:#1E2A3E}.r i{background:#8DB4FF}}</style>'+
-    '<div class="b"><div class="m"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h16M6 18.5c0-5 2.7-7.3 6-7.3s6 2.3 6 7.3M8.4 8v4.2M12 8v3.2M15.6 8v4.2"/></svg></div>'+
-    '<h1>Abrindo o artigo</h1><p>Pelo proxy oficial do Portal de Periódicos CAPES. Espere a página carregar por completo antes de baixar o PDF.</p><div class="r"><i></i></div></div>';
-
+  // Abre direto no endereço final, como um link comum: abrir about:blank e navegar
+  // depois pode deixar a aba em branco no app instalado e em navegadores de celular.
   function openArticle(url){
-    var w=null;
-    try{w=window.open('','_blank')}catch(e){}
-    if(w){
-      try{w.document.open();w.document.write(LOADING);w.document.close();w.opener=null}catch(e){}
-      w.location.replace(url);
-    }else{
-      var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';
-      document.body.appendChild(a);a.click();a.remove();
-    }
+    var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';
+    document.body.appendChild(a);a.click();a.remove();
   }
 
   /* ---------- Passo 1: estado do login e retorno à Ponte ---------- */
@@ -818,16 +802,15 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   // da UFPB recusar o pedido ("Unable to Respond", o SP monta o ACS a partir do
   // host do target) e o ez15 só redireciona para sites cadastrados nele (testado
   // com login real: "page not configured for access"). Por isso o login abre numa
-  // janela que a própria Ponte fecha quando o usuário confirma.
-  loginBtn.href='https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target='+encodeURIComponent('https://www.periodicos.capes.gov.br/secure')+'&entityID='+encodeURIComponent('https://idp-cafe.ufpb.br/idp/shibboleth');
+  // janela que a própria Ponte fecha quando o usuário confirma. O endereço fica só
+  // no href do #loginBtn, no HTML.
 
   // Concluído só com confirmação: a Ponte não tem como ler a sessão do Portal.
   // O clique apenas deixa o passo pendente.
   var PENDING_MS=30*60*1000;
   var loginPending=$('#loginPending');
   function renderLogin(){
-    var t=store.get(K.login,0), ok=!!(t&&today(t));
-    var p=store.get(K.pending,0), waiting=!ok&&!!p&&(Date.now()-p<PENDING_MS);
+    var t=store.get(K.login,0), ok=loggedToday(), waiting=!ok&&loginPendingRecent();
     step1.classList.toggle('done',ok);
     step1.classList.toggle('current',!ok);
     step2.classList.toggle('current',ok);
@@ -839,7 +822,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     loginBtn.classList.toggle('btn-secondary',ok);
   }
   function confirmLogin(){
-    var nl=document.getElementById('noLogin');if(nl) nl.hidden=true;
+    if(noLogin) noLogin.hidden=true;
     store.set(K.login,Date.now());
     store.del(K.pending);
     renderLogin();
@@ -898,7 +881,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
   /* ---------- Passo 2: campo, prévia e envio ---------- */
   var form=$('#f'),field=$('#field'),preview=$('#preview'),pvLabel=$('#pvLabel'),pvUrl=$('#pvUrl'),err=$('#err'),errMsg=$('#errMsg');
-  var warmed={},warmCount=0,WARM_MAX=6;
+  var warmed={},warmCount=0,WARM_MAX=6,warmTimer;
   function warm(url){
     try{var o=new URL(url).origin}catch(e){return}
     if(warmed[o]||warmCount>=WARM_MAX) return; warmed[o]=1; warmCount++;
@@ -915,8 +898,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       pvUrl.textContent=r.url.replace(/^https:\/\//,'');
       pvUrl.title=r.url;
       preview.hidden=false;
-      warm(r.url);
-    }else preview.hidden=true;
+      clearTimeout(warmTimer);warmTimer=setTimeout(function(){warm(r.url)},600);
+    }else{preview.hidden=true;clearTimeout(warmTimer)}
   }
   function showError(m){
     errMsg.textContent=m;err.hidden=false;
@@ -940,8 +923,9 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     var v=input.value.trim(),r=parse(v);
     if(!r){noLogin.hidden=true;showError(v?'Link não reconhecido. Copie o endereço completo da página do artigo ou use o DOI.':'Cole o link ou o DOI do artigo.');return}
     // Clicou em "Entrar" há pouco e já está enviando o artigo: trata como login feito
-    // (a volta pode não ter sido detectada, ex.: aba recarregada pelo celular).
-    if(!loggedToday()&&loginPendingRecent()){confirmLogin();closeLoginWin()}
+    // (a volta pode não ter sido detectada, ex.: aba recarregada pelo celular). A aba
+    // do login fica aberta: se o login ainda estiver em andamento, dá para terminá-lo.
+    if(!loggedToday()&&loginPendingRecent()) confirmLogin();
     if(!loggedToday()){heldArticle=r;noLogin.hidden=false;return}
     launch(r);
   });
@@ -1002,7 +986,6 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       var p=document.createElement('span');p.className='path';p.textContent=x.display||x.url;p.title=x.display||x.url;
       var tm=document.createElement('time');tm.dateTime=new Date(x.t).toISOString();tm.textContent=ago(x.t);
       a.appendChild(s);a.appendChild(p);a.appendChild(tm);
-      a.addEventListener('click',function(e){if(e.button===0&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){e.preventDefault();openArticle(x.url)}});
       li.appendChild(a);recentList.appendChild(li);
     });
   }
@@ -1014,7 +997,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   // your institution" da Springer Nature e em páginas traduzidas pelo Chrome, usa o
   // endereço original do artigo. Num link doi.org, usa o login?url= do proxy, como o
   // formulário; numa página que já está no proxy, avisa em vez de não fazer nada.
-  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"',P='"+PREFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}var q=new URLSearchParams(L.search),r=q.get('redirect_uri');if(/wayf\\.springernature\\.com$/.test(h)&&r&&/^https?:\\/\\//.test(r)){try{var R=new URL(r);h=R.hostname;p=R.pathname+R.search}catch(e){}}if(/\\.translate\\.goog$/.test(h)){h=h.replace(/\\.translate\\.goog$/,'').split('--').map(function(x){return x.replace(/-/g,'.')}).join('-');p=L.pathname}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h)){alert('Ponte: esta p\\u00e1gina j\\u00e1 est\\u00e1 aberta pela UFPB. Se pedir pagamento, fa\\u00e7a o login do passo 1 na Ponte e recarregue.');return}if(/^(dx\\.)?doi\\.org$/.test(h)&&/^\\/10\\./.test(p)){location.href=''+P+'https://doi.org'+p;return}var m=p.match(/(?:PII|\\/)(S\\d{4}-?\\d{3}[\\dX]\\(\\d{2}\\)\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
+  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"',P='"+PREFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}var q=new URLSearchParams(L.search),r=q.get('redirect_uri');if(/wayf\\.springernature\\.com$/.test(h)&&r&&/^https?:\\/\\//.test(r)){try{var R=new URL(r);h=R.hostname;p=R.pathname+R.search}catch(e){}}if(/\\.translate\\.goog$/.test(h)){h=h.replace(/\\.translate\\.goog$/,'').split('--').map(function(x){return x.replace(/-/g,'.')}).join('-');['_x_tr_sl','_x_tr_tl','_x_tr_hl','_x_tr_pto','_x_tr_hist'].forEach(function(k){q.delete(k)});var Q=q.toString();p=L.pathname+(Q?'?'+Q:'')}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h)){alert('Ponte: esta p\\u00e1gina j\\u00e1 est\\u00e1 aberta pela UFPB. Se pedir pagamento, fa\\u00e7a o login do passo 1 na Ponte e recarregue.');return}if(/^(dx\\.)?doi\\.org$/.test(h)&&/^\\/10\\./.test(p)){location.href=P+'https://doi.org'+L.pathname;return}var m=p.match(/(?:PII|\\/)(S\\d{4}-?\\d{3}[\\dX]\\(\\d{2}\\)\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
   var bm=$('#bm');
   bm.setAttribute('href',BM);
   bm.addEventListener('click',function(e){
@@ -1117,7 +1100,10 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   $('#year').textContent=new Date().getFullYear();
   renderLogin();
   renderRecent();
-  setInterval(function(){renderLogin();renderRecent()},60000);
+  setInterval(function(){
+    renderLogin();
+    $$('#recentList time').forEach(function(tm){var t=Date.parse(tm.dateTime);if(isFinite(t)) tm.textContent=ago(t)});
+  },60000);
 })();
 </script>
 </body>

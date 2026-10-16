@@ -1,7 +1,7 @@
 // Service worker mínimo: rede primeiro, cache como reserva (permite abrir a Ponte sem conexão).
 // Só respostas 200 do próprio domínio entram no cache: uma falha momentânea do servidor
 // (4xx/5xx) não pode virar a tela salva para uso offline.
-const CACHE = 'ponte-v2';
+const CACHE = 'ponte-v3';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -26,16 +26,14 @@ self.addEventListener('fetch', (e) => {
       .then((res) => {
         if (res && res.status === 200 && res.type === 'basic') {
           const copy = res.clone();
-          e.waitUntil(caches.open(CACHE).then((c) => c.put(req, copy)));
+          // Navegações vão sempre para a mesma entrada: endereços com ?utm_, ?fbclid etc.
+          // não acumulam cópias da página no cache.
+          e.waitUntil(caches.open(CACHE).then((c) => c.put(navigate ? './index.html' : req, copy)));
         }
         return res;
       })
       .catch(() =>
-        caches.match(req, { ignoreSearch: navigate }).then((r) => {
-          if (r) return r;
-          if (navigate) return caches.match('./index.html');
-          return Response.error();
-        })
+        caches.match(navigate ? './index.html' : req).then((r) => r || Response.error())
       )
   );
 });
