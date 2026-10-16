@@ -16,10 +16,21 @@
 <link rel="preconnect" href="https://ez15.periodicos.capes.gov.br">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500&display=block">
 <script>
 document.documentElement.className+=' js';
 try{var t=localStorage.getItem('ponte.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}
+(function(){
+  var ready=function(){document.documentElement.classList.add('fonts-ready')};
+  if('fonts' in document){
+    Promise.race([
+      document.fonts.ready,
+      new Promise(function(r){setTimeout(r,400)})
+    ]).then(ready);
+  }else{
+    ready();
+  }
+})();
 </script>
 <style>
 /* ---------- Tokens ---------- */
@@ -59,8 +70,9 @@ try{var t=localStorage.getItem('ponte.theme');if(t==='dark'||t==='light')documen
 /* ---------- Base ---------- */
 [hidden]{display:none!important}
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:84px}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;transition:background-color .3s,color .3s}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:68px}
+html:not(.fonts-ready) body{opacity:0}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;opacity:1;transition:opacity .22s ease-out,background-color .3s,color .3s}
 a{color:inherit}
 svg{display:block}
 p{margin:0}
@@ -72,7 +84,7 @@ p{margin:0}
 kbd,.kbd{font:500 .72rem/1 var(--mono);color:var(--ink-2);background:var(--surface);border:1px solid var(--rule-2);border-bottom-width:2px;border-radius:5px;padding:3px 6px;white-space:nowrap}
 
 /* ---------- Top bar ---------- */
-.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 84%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid transparent;transition:border-color .3s,background-color .3s}
+.top{position:fixed;top:0;left:0;right:0;z-index:50;background:color-mix(in srgb,var(--paper) 84%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid transparent;transition:border-color .3s,background-color .3s}
 .top.scrolled{border-bottom-color:var(--rule)}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;border-radius:10px}
@@ -301,6 +313,129 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   .js [data-reveal]{opacity:1;transform:none}
 }
+
+/* ---------- 4 Etapas: Scroll Snap & Glide Visual ---------- */
+@media (min-width:960px) and (min-height:620px){
+  html{scroll-snap-type:y mandatory}
+  .stage{
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    min-height:100vh;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    position:relative;
+    padding-block:clamp(36px,5vh,72px);
+  }
+  .hero.stage{
+    padding-top:84px;
+    padding-bottom:32px;
+  }
+  .stage:not(.hero){
+    padding-top:84px;
+  }
+  .stage#duvidas{
+    justify-content:space-between;
+    padding-bottom:0;
+  }
+  .stage#duvidas .stage-content{
+    margin-block:auto;
+    width:100%;
+  }
+  .stage#duvidas .foot{
+    margin-top:auto;
+    width:100%;
+  }
+}
+
+/* ---------- Indicador Flutuante das 4 Etapas ---------- */
+.stage-nav{
+  position:fixed;
+  right:22px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:40;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:12px 9px;
+  background:color-mix(in srgb,var(--surface) 82%,transparent);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--rule);
+  border-radius:999px;
+  box-shadow:var(--shadow);
+  transition:opacity .3s,transform .3s;
+}
+@media (max-width:959px),(max-height:619px){
+  .stage-nav{display:none!important}
+}
+.stage-dot{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:26px;
+  height:26px;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  padding:0;
+  border-radius:50%;
+  color:var(--ink-3);
+  transition:color .2s,transform .2s var(--ease);
+}
+.stage-dot:hover{
+  transform:scale(1.2);
+  color:var(--brand);
+}
+.stage-dot-bullet{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:currentColor;
+  transition:width .25s var(--ease),height .25s var(--ease),border-radius .25s,background-color .25s;
+}
+.stage-dot.active{
+  color:var(--brand);
+}
+.stage-dot.active .stage-dot-bullet{
+  width:9px;
+  height:22px;
+  border-radius:999px;
+  background:var(--brand);
+}
+.stage-dot-tooltip{
+  position:absolute;
+  right:calc(100% + 12px);
+  top:50%;
+  transform:translateY(-50%) translateX(6px);
+  opacity:0;
+  pointer-events:none;
+  background:var(--ink);
+  color:var(--paper);
+  font:600 .74rem/1 var(--sans);
+  padding:7px 11px;
+  border-radius:8px;
+  white-space:nowrap;
+  box-shadow:var(--shadow-sm);
+  transition:opacity .2s var(--ease),transform .2s var(--ease);
+}
+.stage-dot-tooltip::after{
+  content:"";
+  position:absolute;
+  left:100%;
+  top:50%;
+  transform:translateY(-50%);
+  border:5px solid transparent;
+  border-left-color:var(--ink);
+}
+.stage-dot:hover .stage-dot-tooltip,
+.stage-dot:focus-visible .stage-dot-tooltip{
+  opacity:1;
+  transform:translateY(-50%) translateX(0);
+}
 </style>
 </head>
 <body>
@@ -343,8 +478,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   </div>
 </header>
 
-<main id="inicio">
-  <section class="hero" aria-labelledby="hero-title">
+<main id="main">
+  <section class="hero stage" id="inicio" aria-labelledby="hero-title" data-stage="0">
     <div class="wrap">
       <div class="hero-copy">
         <span class="eyebrow" data-reveal>Acesso remoto · Comunidade UFPB</span>
@@ -370,8 +505,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
               <h3>Autentique-se via CAFe</h3>
               <p class="desc">Entre com suas credenciais institucionais na página oficial de login da UFPB. O procedimento é necessário uma vez por sessão.</p>
               <div class="actions">
-                <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https://www.periodicos.capes.gov.br/secure&amp;entityID=https://idp-cafe.ufpb.br/idp/shibboleth" target="_blank" rel="noopener">
-                  <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico out"><use href="#i-out"/></svg>
+                <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https%3A%2F%2Fponteufpb.vercel.app%2F%3Fauth%3Dok&amp;entityID=https://idp-cafe.ufpb.br/idp/shibboleth" rel="noopener">
+                  <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico go"><use href="#i-go"/></svg>
                 </a>
                 <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Autenticação iniciada hoje às <b id="loginTime">--:--</b> neste navegador. Se um artigo abrir na página inicial do Portal, refaça este passo.</span></p>
               </div>
@@ -413,7 +548,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     </div>
   </section>
 
-  <section class="section" id="como-funciona" aria-labelledby="how-title">
+  <section class="section stage" id="como-funciona" aria-labelledby="how-title" data-stage="1">
     <div class="wrap">
       <div class="section-head" data-reveal>
         <span class="eyebrow">Como funciona</span>
@@ -448,7 +583,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     </div>
   </section>
 
-  <section class="section" id="atalhos" aria-labelledby="short-title">
+  <section class="section stage" id="atalhos" aria-labelledby="short-title" data-stage="2">
     <div class="wrap">
       <div class="section-head" data-reveal>
         <span class="eyebrow">Acesso rápido</span>
@@ -486,53 +621,73 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     </div>
   </section>
 
-  <section class="section" id="duvidas" aria-labelledby="faq-title">
-    <div class="wrap faq-grid">
-      <div class="section-head" data-reveal>
-        <span class="eyebrow">Dúvidas frequentes</span>
-        <h2 class="title" id="faq-title">Transparência sobre o funcionamento.</h2>
-        <p>O que acontece em cada etapa e como resolver as situações mais comuns.</p>
-      </div>
-      <div class="faq" data-reveal style="--d:.08s">
-        <details>
-          <summary>O uso da Ponte é permitido?<span class="plus" aria-hidden="true"></span></summary>
-          <div class="answer">Sim. A Ponte não contorna nenhuma proteção: ela apenas monta o endereço do proxy oficial do Portal de Periódicos CAPES para o artigo desejado. O acesso só é concedido depois que você se autentica com sua conta institucional no CAFe, dentro dos termos que a CAPES já contrata para a UFPB.</div>
-        </details>
-        <details>
-          <summary>Minha senha passa por esta página?<span class="plus" aria-hidden="true"></span></summary>
-          <div class="answer">Não. O login é feito exclusivamente no servidor de identidade da UFPB (<code>idp-cafe.ufpb.br</code>). Esta página não coleta, armazena nem transmite credenciais.</div>
-        </details>
-        <details>
-          <summary>O artigo abriu na página inicial do Portal CAPES.<span class="plus" aria-hidden="true"></span></summary>
-          <div class="answer">Sua sessão ainda não foi iniciada ou expirou. Refaça o passo 1, conclua o login e abra o artigo novamente pelo passo 2.</div>
-        </details>
-        <details>
-          <summary>O artigo continua pedindo pagamento.<span class="plus" aria-hidden="true"></span></summary>
-          <div class="answer">O periódico, ou o ano de publicação, pode não fazer parte do acervo assinado pela CAPES para a UFPB. Você pode conferir a cobertura buscando o título no <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos</a>.</div>
-        </details>
-        <details>
-          <summary>O botão de PDF não respondeu ao primeiro clique.<span class="plus" aria-hidden="true"></span></summary>
-          <div class="answer">Páginas carregadas pelo proxy podem levar alguns segundos a mais para ficar prontas. Aguarde o carregamento completo antes de solicitar o PDF; cliques repetidos tendem a reiniciar o download.</div>
-        </details>
-        <details>
-          <summary>Por que esta ferramenta existe?<span class="plus" aria-hidden="true"></span></summary>
-          <div class="answer">Com a descontinuação do antigo proxy institucional, o acesso remoto passou a depender do login CAFe diretamente no Portal de Periódicos. A Ponte reúne esse caminho em dois passos para simplificar a rotina de pesquisa.</div>
-        </details>
+  <section class="section stage" id="duvidas" aria-labelledby="faq-title" data-stage="3">
+    <div class="stage-content">
+      <div class="wrap faq-grid">
+        <div class="section-head" data-reveal>
+          <span class="eyebrow">Dúvidas frequentes</span>
+          <h2 class="title" id="faq-title">Transparência sobre o funcionamento.</h2>
+          <p>O que acontece em cada etapa e como resolver as situações mais comuns.</p>
+        </div>
+        <div class="faq" data-reveal style="--d:.08s">
+          <details>
+            <summary>O uso da Ponte é permitido?<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">Sim. A Ponte não contorna nenhuma proteção: ela apenas monta o endereço do proxy oficial do Portal de Periódicos CAPES para o artigo desejado. O acesso só é concedido depois que você se autentica com sua conta institucional no CAFe, dentro dos termos que a CAPES já contrata para a UFPB.</div>
+          </details>
+          <details>
+            <summary>Minha senha passa por esta página?<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">Não. O login é feito exclusivamente no servidor de identidade da UFPB (<code>idp-cafe.ufpb.br</code>). Esta página não coleta, armazena nem transmite credenciais.</div>
+          </details>
+          <details>
+            <summary>O artigo abriu na página inicial do Portal CAPES.<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">Sua sessão ainda não foi iniciada ou expirou. Refaça o passo 1, conclua o login e abra o artigo novamente pelo passo 2.</div>
+          </details>
+          <details>
+            <summary>O artigo continua pedindo pagamento.<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">O periódico, ou o ano de publicação, pode não fazer parte do acervo assinado pela CAPES para a UFPB. Você pode conferir a cobertura buscando o título no <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos</a>.</div>
+          </details>
+          <details>
+            <summary>O botão de PDF não respondeu ao primeiro clique.<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">Páginas carregadas pelo proxy podem levar alguns segundos a mais para ficar prontas. Aguarde o carregamento completo antes de solicitar o PDF; cliques repetidos tendem a reiniciar o download.</div>
+          </details>
+          <details>
+            <summary>Por que esta ferramenta existe?<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">Com a descontinuação do antigo proxy institucional, o acesso remoto passou a depender do login CAFe diretamente no Portal de Periódicos. A Ponte reúne esse caminho em dois passos para simplificar a rotina de pesquisa.</div>
+          </details>
+        </div>
       </div>
     </div>
+    <footer class="foot">
+      <div class="wrap">
+        <p class="legal"><svg class="ico"><use href="#i-shield"/></svg><span>A Ponte é uma iniciativa independente, desenvolvida por um estudante da UFPB, sem vínculo oficial com a UFPB, a STI, a CAPES ou a RNP. A ferramenta não armazena conteúdo nem contorna mecanismos de proteção: apenas facilita o exercício de um direito de acesso já garantido à comunidade acadêmica da UFPB pelo Portal de Periódicos CAPES, nos termos de uso do Portal.</span></p>
+        <nav aria-label="Links institucionais">
+          <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos CAPES<svg class="ico"><use href="#i-out"/></svg></a>
+          <a href="https://www.ufpb.br" target="_blank" rel="noopener">Universidade Federal da Paraíba<svg class="ico"><use href="#i-out"/></svg></a>
+        </nav>
+        <div class="copy"><span>© <span id="year">2026</span> Ponte <span class="author-tag" style="opacity:.55;font-weight:400;margin-left:4px">By PYMS</span></span><span>Feito na Paraíba para a pesquisa brasileira.</span></div>
+      </div>
+    </footer>
   </section>
 </main>
 
-<footer class="foot">
-  <div class="wrap">
-    <p class="legal"><svg class="ico"><use href="#i-shield"/></svg><span>A Ponte é uma iniciativa independente, desenvolvida por um estudante da UFPB, sem vínculo oficial com a UFPB, a STI, a CAPES ou a RNP. A ferramenta não armazena conteúdo nem contorna mecanismos de proteção: apenas facilita o exercício de um direito de acesso já garantido à comunidade acadêmica da UFPB pelo Portal de Periódicos CAPES, nos termos de uso do Portal.</span></p>
-    <nav aria-label="Links institucionais">
-      <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos CAPES<svg class="ico"><use href="#i-out"/></svg></a>
-      <a href="https://www.ufpb.br" target="_blank" rel="noopener">Universidade Federal da Paraíba<svg class="ico"><use href="#i-out"/></svg></a>
-    </nav>
-    <div class="copy"><span>© <span id="year">2026</span> Ponte <span class="author-tag" style="opacity:.55;font-weight:400;margin-left:4px">By PYMS</span></span><span>Feito na Paraíba para a pesquisa brasileira.</span></div>
-  </div>
-</footer>
+<nav class="stage-nav" id="stageNav" aria-label="Navegação por etapas">
+  <button class="stage-dot active" data-index="0" type="button" aria-label="Etapa 1: Acesso">
+    <span class="stage-dot-bullet"></span>
+    <span class="stage-dot-tooltip">01 · Acesso</span>
+  </button>
+  <button class="stage-dot" data-index="1" type="button" aria-label="Etapa 2: Como funciona">
+    <span class="stage-dot-bullet"></span>
+    <span class="stage-dot-tooltip">02 · Funcionamento</span>
+  </button>
+  <button class="stage-dot" data-index="2" type="button" aria-label="Etapa 3: Atalhos">
+    <span class="stage-dot-bullet"></span>
+    <span class="stage-dot-tooltip">03 · Atalhos</span>
+  </button>
+  <button class="stage-dot" data-index="3" type="button" aria-label="Etapa 4: Dúvidas">
+    <span class="stage-dot-bullet"></span>
+    <span class="stage-dot-tooltip">04 · Dúvidas</span>
+  </button>
+</nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"><svg class="ico"><use href="#i-check"/></svg><span id="toastMsg"></span></div>
 
@@ -615,10 +770,17 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     }
   }
 
-  /* ---------- Passo 1: estado do login ---------- */
+  /* ---------- Passo 1: estado do login e retorno à Ponte ---------- */
   var step1=$('#step1'),step2=$('#step2'),loginBtn=$('#loginBtn'),loginLabel=$('#loginLabel'),loginStatus=$('#loginStatus'),loginTime=$('#loginTime');
   function today(t){return new Date(t).toDateString()===new Date().toDateString()}
   function hhmm(t){return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+  
+  // Retorna diretamente para a Ponte após a validação no CAFe / UFPB
+  var returnTarget=(location.protocol==='http:'||location.protocol==='https:')
+    ?(location.origin+location.pathname+'?auth=ok')
+    :'https://ponteufpb.vercel.app/?auth=ok';
+  loginBtn.href='https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target='+encodeURIComponent(returnTarget)+'&entityID=https://idp-cafe.ufpb.br/idp/shibboleth';
+
   function renderLogin(){
     var t=store.get(K.login,0), ok=!!(t&&today(t));
     step1.classList.toggle('done',ok);
@@ -634,9 +796,26 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       loginBtn.classList.remove('btn-secondary');loginBtn.classList.add('btn-primary');
     }
   }
+
+  // Detecta se acabou de retornar autenticado do CAFe UFPB
+  var hasAuthOk=(location.search.indexOf('auth=ok')>=0||location.hash.indexOf('auth=ok')>=0);
+  if(hasAuthOk){
+    store.set(K.login,Date.now());
+    setTimeout(function(){
+      toast('Autenticado com sucesso na UFPB! Cole o artigo no passo 2.');
+      if(input) input.focus();
+    },350);
+    if(window.history&&history.replaceState){
+      try{
+        var cleanSearch=location.search.replace(/[?&]auth=ok(&|$)/,function(m,p1){return p1?'?':'';}).replace(/\?$/,'');
+        var cleanUrl=location.pathname+cleanSearch+location.hash.replace(/[#&]auth=ok(&|$)/,'');
+        history.replaceState(null,document.title,cleanUrl||'/');
+      }catch(e){}
+    }
+  }
+
   loginBtn.addEventListener('click',function(){
     store.set(K.login,Date.now());
-    setTimeout(function(){renderLogin();toast('Conclua o login na aba aberta e volte para cá')},400);
   });
 
   /* ---------- Passo 2: campo, prévia e envio ---------- */
@@ -791,6 +970,130 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     deferred.userChoice.then(function(){deferred=null;installBtn.hidden=true});
   });
   window.addEventListener('appinstalled',function(){installBtn.hidden=true;toast('Ponte instalada no dispositivo')});
+
+  /* ---------- 4 Etapas: Navegação visual suave e deslizamento ---------- */
+  var stages=$$('.stage');
+  var stageDots=$$('.stage-dot');
+  var isGliding=false;
+  var glideTimer=null;
+
+  function getStageIndexAtScroll(){
+    var mid=window.scrollY+window.innerHeight*0.35;
+    for(var i=stages.length-1;i>=0;i--){
+      if(stages[i].offsetTop<=mid) return i;
+    }
+    return 0;
+  }
+
+  function updateActiveDot(idx){
+    stageDots.forEach(function(dot,i){
+      dot.classList.toggle('active',i===idx);
+      if(i===idx) dot.setAttribute('aria-current','step');
+      else dot.removeAttribute('aria-current');
+    });
+  }
+
+  function glideTo(idx){
+    if(idx<0||idx>=stages.length) return;
+    isGliding=true;
+    updateActiveDot(idx);
+    stages[idx].scrollIntoView({behavior:'smooth',block:'start'});
+    clearTimeout(glideTimer);
+    glideTimer=setTimeout(function(){
+      isGliding=false;
+    },650);
+  }
+
+  stageDots.forEach(function(dot){
+    dot.addEventListener('click',function(){
+      var idx=parseInt(dot.getAttribute('data-index'),10);
+      glideTo(idx);
+    });
+  });
+
+  $$('.nav a[href^="#"], .brand[href^="#"]').forEach(function(link){
+    link.addEventListener('click',function(e){
+      var href=link.getAttribute('href');
+      var el=document.querySelector(href);
+      if(el&&el.classList.contains('stage')){
+        e.preventDefault();
+        var idx=stages.indexOf(el);
+        if(idx>=0) glideTo(idx);
+        else el.scrollIntoView({behavior:'smooth',block:'start'});
+      }
+    });
+  });
+
+  var isDesktopStage=function(){
+    return window.matchMedia('(min-width: 960px) and (min-height: 620px)').matches;
+  };
+
+  window.addEventListener('wheel',function(e){
+    if(!isDesktopStage()) return;
+    if(isGliding){
+      e.preventDefault();
+      return;
+    }
+    var dy=e.deltaY;
+    if(Math.abs(dy)<20) return;
+
+    var cur=getStageIndexAtScroll();
+    var stageEl=stages[cur];
+    if(!stageEl) return;
+    var stageTop=stageEl.offsetTop;
+    var stageBottom=stageTop+stageEl.offsetHeight;
+    var viewBottom=window.scrollY+window.innerHeight;
+
+    if(dy>0){
+      if(viewBottom<stageBottom-24) return;
+      if(cur<stages.length-1){
+        e.preventDefault();
+        glideTo(cur+1);
+      }
+    }else if(dy<0){
+      if(window.scrollY>stageTop+24) return;
+      if(cur>0){
+        e.preventDefault();
+        glideTo(cur-1);
+      }
+    }
+  },{passive:false});
+
+  window.addEventListener('keydown',function(e){
+    if(!isDesktopStage()) return;
+    var tag=(document.activeElement&&document.activeElement.tagName)||'';
+    if(/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    var cur=getStageIndexAtScroll();
+    if(e.key==='ArrowDown'||e.key==='PageDown'){
+      if(cur<stages.length-1){
+        e.preventDefault();
+        glideTo(cur+1);
+      }
+    }else if(e.key==='ArrowUp'||e.key==='PageUp'){
+      if(cur>0){
+        e.preventDefault();
+        glideTo(cur-1);
+      }
+    }else if(e.key==='Home'){
+      e.preventDefault();
+      glideTo(0);
+    }else if(e.key==='End'){
+      e.preventDefault();
+      glideTo(stages.length-1);
+    }
+  });
+
+  if('IntersectionObserver' in window){
+    var stageObs=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting&&!isGliding){
+          var idx=stages.indexOf(entry.target);
+          if(idx>=0) updateActiveDot(idx);
+        }
+      });
+    },{threshold:0.5});
+    stages.forEach(function(s){stageObs.observe(s);});
+  }
 
   /* ---------- Inicialização ---------- */
   $('#year').textContent=new Date().getFullYear();
