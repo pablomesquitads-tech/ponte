@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ponte · Acesso remoto aos Periódicos CAPES na UFPB</title>
+<meta name="description" content="Acesse de qualquer lugar os artigos científicos assinados pela CAPES para a UFPB. Autentique-se via CAFe com sua conta institucional e abra o artigo em dois passos.">
+<meta name="theme-color" content="#0B3B75" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Ponte · Periódicos CAPES na UFPB">
+<meta property="og:description" content="Acesso remoto ao acervo científico da UFPB em dois passos, via CAFe e proxy oficial do Portal de Periódicos CAPES.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230B3B75'/%3E%3Cg fill='none' stroke='white' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M4 8h16M6 18.5c0-5 2.7-7.3 6-7.3s6 2.3 6 7.3M8.4 8v4.2M12 8v3.2M15.6 8v4.2'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://ez15.periodicos.capes.gov.br">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500&display=swap"></noscript>
+<script>
+document.documentElement.className+=' js';
+try{var t=localStorage.getItem('ponte.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}
+</script>
+<style>
+/* ---------- Tokens ---------- */
+:root{
+  --paper:#F5F3EE; --paper-2:#ECE9E1; --surface:#FFFFFF;
+  --ink:#0E1B2C; --ink-2:#3F4B5A; --ink-3:#6A7584;
+  --rule:#E2DED5; --rule-2:#CFCABE;
+  --brand:#0B3B75; --brand-hover:#082F5F; --brand-ink:#FFFFFF; --brand-soft:#E8EEF7; --brand-line:#B9CBE6;
+  --ok:#1E7A4C; --ok-soft:#E3F1E9; --err:#B42318; --err-soft:#FBE9E7;
+  --shadow-sm:0 1px 2px rgba(14,27,44,.06);
+  --shadow:0 1px 0 rgba(14,27,44,.03),0 2px 6px rgba(14,27,44,.04),0 28px 56px -30px rgba(14,27,44,.28);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --serif:"Source Serif 4","Source Serif Pro",Georgia,"Times New Roman",serif;
+  --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B1220; --paper-2:#121B2C; --surface:#101A2B;
+  --ink:#E8ECF2; --ink-2:#AEB8C6; --ink-3:#7F8B9C;
+  --rule:#1E2A3E; --rule-2:#2B3950;
+  --brand:#8DB4FF; --brand-hover:#A8C6FF; --brand-ink:#0B1220; --brand-soft:#14223A; --brand-line:#2C4470;
+  --ok:#4CC38A; --ok-soft:#0F2A1E; --err:#FF8A7A; --err-soft:#2E1513;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow:0 1px 0 rgba(255,255,255,.02),0 28px 56px -30px rgba(0,0,0,.7);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0B1220; --paper-2:#121B2C; --surface:#101A2B;
+  --ink:#E8ECF2; --ink-2:#AEB8C6; --ink-3:#7F8B9C;
+  --rule:#1E2A3E; --rule-2:#2B3950;
+  --brand:#8DB4FF; --brand-hover:#A8C6FF; --brand-ink:#0B1220; --brand-soft:#14223A; --brand-line:#2C4470;
+  --ok:#4CC38A; --ok-soft:#0F2A1E; --err:#FF8A7A; --err-soft:#2E1513;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow:0 1px 0 rgba(255,255,255,.02),0 28px 56px -30px rgba(0,0,0,.7);
+  color-scheme:dark}
+
+/* ---------- Base ---------- */
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;transition:background-color .3s,color .3s}
+a{color:inherit}
+svg{display:block}
+p{margin:0}
+::selection{background:var(--brand);color:var(--brand-ink)}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:clamp(20px,5vw,40px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+kbd,.kbd{font:500 .72rem/1 var(--mono);color:var(--ink-2);background:var(--surface);border:1px solid var(--rule-2);border-bottom-width:2px;border-radius:5px;padding:3px 6px;white-space:nowrap}
+
+/* ---------- Top bar ---------- */
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 84%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid transparent;transition:border-color .3s,background-color .3s}
+.top.scrolled{border-bottom-color:var(--rule)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;border-radius:10px}
+.mark{width:36px;height:36px;border-radius:10px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;transition:transform .4s var(--ease)}
+.brand:hover .mark{transform:rotate(-6deg)}
+.mark .ico{width:24px;height:24px;stroke-width:1.7}
+.brand-name{display:block;font:600 1.3rem/1 var(--serif);letter-spacing:-.01em}
+.brand-sub{display:block;font:600 .66rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:5px}
+.nav{display:flex;align-items:center;gap:2px}
+.nav a{font:500 .9rem var(--sans);color:var(--ink-2);text-decoration:none;padding:8px 12px;border-radius:8px;transition:color .2s,background-color .2s}
+.nav a:hover{color:var(--ink);background:var(--paper-2)}
+.icon-btn{margin-left:8px;width:38px;height:38px;border-radius:10px;border:1px solid var(--rule);background:var(--surface);color:var(--ink-2);display:grid;place-items:center;cursor:pointer;transition:border-color .2s,color .2s,transform .15s var(--ease)}
+.icon-btn:hover{border-color:var(--rule-2);color:var(--ink)}
+.icon-btn:active{transform:scale(.94)}
+.icon-btn .ico{width:18px;height:18px}
+.i-sun{display:none}
+:root[data-theme="dark"] .i-sun{display:block}:root[data-theme="dark"] .i-moon{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .i-sun{display:block}:root:not([data-theme="light"]) .i-moon{display:none}}
+@media (max-width:760px){.nav a{display:none}}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;padding-block:clamp(36px,6vw,80px) clamp(64px,8vw,104px);overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--rule) 1px,transparent 1px);background-size:100% 34px;opacity:.55;-webkit-mask-image:radial-gradient(ellipse 60% 70% at 15% 25%,#000 0%,transparent 72%);mask-image:radial-gradient(ellipse 60% 70% at 15% 25%,#000 0%,transparent 72%);pointer-events:none}
+.hero .wrap{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.02fr);gap:clamp(40px,6vw,88px);align-items:start}
+.hero-copy{padding-top:clamp(0px,3vw,36px)}
+@media (max-width:940px){.hero .wrap{grid-template-columns:1fr}.hero-copy{padding-top:0}}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font:600 .74rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.eyebrow::before{content:"";width:28px;height:1px;background:currentColor}
+h1{font:600 clamp(2.35rem,4.7vw,3.7rem)/1.05 var(--serif);letter-spacing:-.022em;margin:22px 0 0;text-wrap:balance}
+h1 em{font-style:italic;font-weight:500;color:var(--brand)}
+.lead{font-size:clamp(1.05rem,1.35vw,1.18rem);line-height:1.65;color:var(--ink-2);margin-top:24px;max-width:33em}
+.facts{list-style:none;margin:36px 0 0;padding:28px 0 0;border-top:1px solid var(--rule);display:grid;gap:14px}
+.facts li{display:flex;align-items:center;gap:12px;font-size:.95rem;color:var(--ink-2)}
+.facts .ico{width:18px;height:18px;color:var(--brand)}
+.audience{margin-top:28px;font-size:.86rem;color:var(--ink-3)}
+
+/* ---------- Access panel ---------- */
+.panel{position:relative;background:var(--surface);border:1px solid var(--rule);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 28px;border-bottom:1px solid var(--rule)}
+.panel-head h2{font:600 .74rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0}
+.secure{display:inline-flex;align-items:center;gap:7px;font:500 .78rem/1 var(--sans);color:var(--ink-3)}
+.secure .ico{width:14px;height:14px;color:var(--ok)}
+.steps{list-style:none;margin:0;padding:6px 28px 28px}
+.step{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr);gap:20px;padding-top:24px}
+.step:first-child::after{content:"";position:absolute;left:19.5px;top:72px;bottom:-16px;width:1px;background:linear-gradient(var(--rule-2),var(--rule))}
+.step + .step{margin-top:8px}
+.idx{position:relative;z-index:1;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--brand-line);background:var(--surface);color:var(--brand);font:600 1.02rem/1 var(--serif);transition:background-color .45s var(--ease),border-color .45s,color .45s,box-shadow .45s}
+.idx .n{transition:opacity .2s,transform .35s var(--ease)}
+.idx .ico{position:absolute;width:20px;height:20px;stroke-width:2.4;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .55s .15s var(--ease)}
+.step.current .idx{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);box-shadow:0 0 0 6px var(--brand-soft)}
+.step.done .idx{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:none}
+.step.done .idx .n{opacity:0;transform:scale(.5)}
+.step.done .idx .ico{stroke-dashoffset:0}
+.step-body{min-width:0}
+.step h3{font:600 1.2rem/1.3 var(--serif);letter-spacing:-.005em;margin:7px 0 0}
+.desc{margin-top:6px;color:var(--ink-2);font-size:.95rem}
+.actions{margin-top:18px;display:grid;gap:12px}
+.status{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.5;color:var(--ink-2);background:var(--ok-soft);border-radius:10px;padding:11px 13px;animation:rise .4s var(--ease)}
+.status .ico{width:17px;height:17px;color:var(--ok);margin-top:2px}
+.status b{color:var(--ink);font-weight:600}
+
+/* Buttons */
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:10px;font:600 .98rem/1 var(--sans);padding:16px 22px;border-radius:12px;border:1px solid transparent;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;transition:transform .16s var(--ease),background-color .2s,border-color .2s,color .2s,box-shadow .2s}
+.btn:active{transform:scale(.985)}
+.btn .ico{width:18px;height:18px;transition:transform .3s var(--ease)}
+.btn:hover .go{transform:translateX(3px)}
+.btn:hover .out{transform:translate(2px,-2px)}
+.btn-primary{background:var(--brand);color:var(--brand-ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 22px -12px color-mix(in srgb,var(--brand) 80%,transparent)}
+.btn-primary:hover{background:var(--brand-hover)}
+.btn-secondary{background:var(--surface);color:var(--ink);border-color:var(--rule-2)}
+.btn-secondary:hover{border-color:var(--ink-3)}
+.btn-block{width:100%}
+.ripple{position:absolute;border-radius:50%;transform:scale(0);background:currentColor;opacity:.2;pointer-events:none;animation:ripple .65s var(--ease) forwards}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+
+/* Field */
+.field{display:flex;align-items:center;gap:10px;height:56px;padding:0 6px 0 15px;border:1px solid var(--rule-2);border-radius:12px;background:var(--paper);transition:border-color .2s,box-shadow .25s,background-color .2s}
+.field:hover{border-color:var(--ink-3)}
+.field:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 4px var(--brand-soft)}
+.field>.ico{color:var(--ink-3);transition:color .2s}
+.field:focus-within>.ico{color:var(--brand)}
+.field input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:400 1rem var(--sans);color:var(--ink)}
+.field input::placeholder{color:var(--ink-3);opacity:1}
+.field.has-value .kbd{display:none}
+.field.is-error{border-color:var(--err);box-shadow:0 0 0 4px var(--err-soft);animation:shake .42s}
+.paste{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 12px;border:0;border-radius:9px;background:transparent;color:var(--brand);font:600 .86rem var(--sans);cursor:pointer;transition:background-color .2s,transform .15s var(--ease)}
+.paste:hover{background:var(--brand-soft)}
+.paste:active{transform:scale(.95)}
+.paste .ico{width:16px;height:16px}
+@media (hover:none){.field .kbd{display:none}}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+.preview{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 12px;border-radius:10px;background:var(--brand-soft);animation:rise .35s var(--ease)}
+.badge{flex:none;font:600 .74rem/1 var(--sans);padding:6px 8px;border-radius:6px;background:var(--surface);color:var(--brand);border:1px solid var(--brand-line)}
+.preview .ico{width:14px;height:14px;color:var(--ink-3)}
+.preview code{min-width:0;font:400 .8rem/1.3 var(--mono);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.err{display:flex;gap:8px;align-items:flex-start;color:var(--err);font-size:.88rem;line-height:1.45;animation:rise .3s var(--ease)}
+.err .ico{width:17px;height:17px;margin-top:1px}
+.formats{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:.8rem;color:var(--ink-3)}
+.formats code{font:400 .75rem/1 var(--mono);background:var(--paper);border:1px solid var(--rule);padding:4px 7px;border-radius:6px;color:var(--ink-2)}
+@keyframes rise{from{opacity:0;transform:translateY(-4px)}}
+
+/* Recent */
+.recent{border-top:1px solid var(--rule);background:var(--paper);padding:18px 28px 20px}
+.recent-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.recent h3{display:flex;align-items:center;gap:8px;margin:0;font:600 .72rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.recent h3 .ico{width:15px;height:15px}
+.link-btn{border:0;background:none;color:var(--ink-3);font:500 .82rem var(--sans);cursor:pointer;padding:4px 8px;border-radius:6px;transition:color .2s,background-color .2s}
+.link-btn:hover{color:var(--ink);background:var(--paper-2)}
+.recent ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:2px}
+.recent a{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 10px;margin-inline:-10px;border-radius:8px;text-decoration:none;transition:background-color .2s}
+.recent a:hover{background:var(--surface)}
+.recent .src{font:600 .74rem/1 var(--sans);color:var(--brand)}
+.recent .path{font:400 .8rem/1.3 var(--mono);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent time{font-size:.76rem;color:var(--ink-3);white-space:nowrap}
+
+/* ---------- Sections ---------- */
+.section{padding-block:clamp(72px,9vw,120px);border-top:1px solid var(--rule)}
+.section-head{max-width:42em}
+.title{font:600 clamp(1.75rem,3.1vw,2.5rem)/1.12 var(--serif);letter-spacing:-.018em;margin:18px 0 0;text-wrap:balance}
+.section-head p{color:var(--ink-2);margin-top:16px;font-size:1.05rem}
+
+/* Flow */
+.flow{margin-top:56px;display:grid;grid-template-columns:auto minmax(24px,1fr) auto minmax(24px,1fr) auto minmax(24px,1fr) auto;align-items:start}
+.node{display:grid;justify-items:center;gap:14px;text-align:center;width:156px}
+.node-ico{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--rule);color:var(--brand);box-shadow:var(--shadow-sm);transition:transform .35s var(--ease),border-color .3s}
+.node:hover .node-ico{transform:translateY(-3px);border-color:var(--brand-line)}
+.node-ico .ico{width:26px;height:26px;stroke-width:1.6}
+.node strong{display:block;font:600 1.02rem/1.2 var(--serif)}
+.node small{display:block;margin-top:4px;font-size:.8rem;color:var(--ink-3)}
+.node code{font:400 .72rem var(--mono)}
+.wire{position:relative;height:2px;margin-top:31px;background-image:linear-gradient(90deg,var(--rule-2) 55%,transparent 0);background-size:8px 2px;overflow:hidden}
+.wire::after{content:"";position:absolute;top:0;left:-40%;width:40%;height:100%;background:linear-gradient(90deg,transparent,var(--brand),transparent);animation:travel 3s var(--ease) infinite;animation-delay:var(--d,0s)}
+@keyframes travel{to{left:100%}}
+@keyframes travelY{to{top:100%}}
+@media (max-width:860px){
+  .flow{grid-template-columns:1fr;justify-items:center}
+  .node{width:auto;max-width:280px}
+  .wire{width:2px;height:40px;margin:14px 0;background-image:linear-gradient(var(--rule-2) 55%,transparent 0);background-size:2px 8px}
+  .wire::after{left:0;top:-40%;width:100%;height:40%;background:linear-gradient(180deg,transparent,var(--brand),transparent);animation-name:travelY}
+}
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(24px,4vw,48px);margin-top:72px;padding-top:44px;border-top:1px solid var(--rule)}
+.pillar h3{display:flex;align-items:center;gap:10px;margin:0;font:600 1.08rem/1.3 var(--serif)}
+.pillar h3 .ico{color:var(--brand)}
+.pillar p{margin-top:12px;color:var(--ink-2);font-size:.95rem}
+.pillar code{font:400 .8rem var(--mono);color:var(--ink)}
+@media (max-width:860px){.pillars{grid-template-columns:1fr}}
+
+/* Shortcut cards */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:52px}
+@media (max-width:860px){.cards{grid-template-columns:1fr}}
+.card{display:grid;gap:18px;align-content:start;background:var(--surface);border:1px solid var(--rule);border-radius:18px;padding:clamp(24px,3vw,34px);transition:border-color .3s,transform .35s var(--ease),box-shadow .35s}
+.card:hover{border-color:var(--rule-2);transform:translateY(-3px);box-shadow:var(--shadow)}
+.tag{justify-self:start;font:600 .68rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--rule);padding:6px 9px;border-radius:999px}
+.card h3{margin:0;font:600 1.25rem/1.25 var(--serif)}
+.card p{color:var(--ink-2);font-size:.95rem}
+.note{font-size:.84rem;color:var(--ink-3)}
+.bm{justify-self:start;display:inline-flex;align-items:center;gap:8px;font:600 .9rem/1 var(--sans);padding:12px 18px;border-radius:999px;background:var(--brand-soft);color:var(--brand);border:1.5px dashed var(--brand-line);text-decoration:none;cursor:grab;transition:transform .25s var(--ease),border-color .2s}
+.bm:hover{border-color:var(--brand);transform:translateY(-2px)}
+.bm:active{cursor:grabbing}
+.bm .ico{width:16px;height:16px}
+.bm.nudge{animation:shake .42s}
+
+.demo{border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--paper)}
+.demo-top{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--rule)}
+.demo-top i{width:9px;height:9px;border-radius:50%;background:var(--rule-2)}
+.demo-url{flex:1;height:20px;margin-left:10px;border-radius:6px;background:var(--surface);border:1px solid var(--rule)}
+.demo-marks{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--rule);background:var(--surface)}
+.demo-marks>span{width:54px;height:10px;border-radius:4px;background:var(--paper-2)}
+.slot{position:relative;width:128px;height:24px;border-radius:999px;border:1px dashed var(--rule-2)}
+.slot b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:5px;border-radius:999px;background:var(--brand-soft);color:var(--brand);font:600 .7rem/1 var(--sans);border:1px solid var(--brand-line);animation:drop 5s var(--ease) infinite}
+.slot svg.cur{position:absolute;right:-12px;bottom:-14px;width:16px;height:16px;fill:var(--ink);stroke:var(--surface);stroke-width:1.2}
+.demo-body{display:grid;gap:8px;padding:16px 14px 18px}
+.demo-body span{height:8px;border-radius:4px;background:var(--paper-2)}
+.demo-body span:nth-child(1){width:62%;height:12px;background:var(--rule)}
+.demo-body span:nth-child(2){width:92%}.demo-body span:nth-child(3){width:84%}.demo-body span:nth-child(4){width:48%}
+@keyframes drop{0%,12%{transform:translate(70px,92px) rotate(-4deg);opacity:0}22%{opacity:1}52%,84%{transform:none;opacity:1}96%,100%{transform:none;opacity:0}}
+
+.homescreen{display:flex;gap:18px;align-items:flex-end;padding:22px;border-radius:14px;background:linear-gradient(160deg,var(--paper-2),var(--paper));border:1px solid var(--rule)}
+.app{display:grid;justify-items:center;gap:7px;font:500 .72rem/1 var(--sans);color:var(--ink-3)}
+.app i{width:46px;height:46px;border-radius:12px;background:var(--rule)}
+.app.me i{display:grid;place-items:center;background:var(--brand);color:var(--brand-ink);box-shadow:0 10px 20px -10px var(--brand);animation:bob 3.2s ease-in-out infinite}
+.app.me i .ico{width:28px;height:28px;stroke-width:1.6}
+.app.me{color:var(--ink);font-weight:600}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.keys{display:inline-flex;gap:4px;align-items:center;vertical-align:1px}
+
+/* FAQ */
+.faq-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:clamp(32px,6vw,80px);align-items:start}
+@media (max-width:860px){.faq-grid{grid-template-columns:1fr}}
+.faq{border-top:1px solid var(--rule)}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 0;font:600 1.06rem/1.4 var(--serif);transition:color .2s}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:hover{color:var(--brand)}
+.plus{position:relative;width:14px;height:14px;flex:none}
+.plus::before,.plus::after{content:"";position:absolute;left:0;top:6.25px;width:14px;height:1.5px;background:currentColor;transition:transform .3s var(--ease),opacity .3s}
+.plus::after{transform:rotate(90deg)}
+.faq details[open] .plus::after{transform:rotate(0);opacity:0}
+.answer{padding:0 0 24px;color:var(--ink-2);font-size:.98rem;max-width:62ch}
+.faq details[open] .answer{animation:rise .35s var(--ease)}
+.answer a{color:var(--brand);text-underline-offset:3px}
+.answer code{font:400 .84rem var(--mono);color:var(--ink)}
+
+/* Footer */
+.foot{border-top:1px solid var(--rule);padding-block:44px 52px;font-size:.86rem;color:var(--ink-3)}
+.foot .wrap{display:grid;grid-template-columns:minmax(0,1.7fr) auto;gap:28px 64px;align-items:start}
+@media (max-width:760px){.foot .wrap{grid-template-columns:1fr}}
+.legal{display:flex;gap:14px;align-items:flex-start;max-width:68ch;line-height:1.65}
+.legal .ico{width:18px;height:18px;color:var(--ink-3);margin-top:3px}
+.foot nav{display:grid;gap:10px;justify-items:start}
+.foot nav a{color:var(--ink-2);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.foot nav a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.foot nav .ico{width:14px;height:14px}
+.copy{grid-column:1/-1;padding-top:24px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:var(--ink);color:var(--paper);font:500 .9rem/1.3 var(--sans);box-shadow:0 18px 40px -16px rgba(0,0,0,.45);transform:translate(-50%,16px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease),transform .35s var(--ease)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast .ico{width:17px;height:17px}
+
+/* Reveal */
+.js [data-reveal]{opacity:0;transform:translateY(16px);transition:opacity .8s var(--ease) var(--d,0s),transform .8s var(--ease) var(--d,0s)}
+.js [data-reveal].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .js [data-reveal]{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-mark" viewBox="0 0 24 24"><path d="M4 8h16M6 18.5c0-5 2.7-7.3 6-7.3s6 2.3 6 7.3M8.4 8v4.2M12 8v3.2M15.6 8v4.2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v15H6a2 2 0 0 0-2 2 2 2 0 0 0 2 2h14"/><path d="M9 7h7M9 11h5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 6c5 0 8.5 4 9.5 6a13 13 0 0 1-2.6 3.5M6.5 7.6C4.5 8.9 3.2 10.7 2.5 12c1 2 4.5 6 9.5 6 1.6 0 3-.4 4.2-1"/><path d="M9.9 10a3 3 0 0 0 4.1 4.1"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+</svg>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="Ponte, página inicial">
+      <span class="mark"><svg class="ico"><use href="#i-mark"/></svg></span>
+      <span><span class="brand-name">Ponte</span><span class="brand-sub">Periódicos CAPES · UFPB</span></span>
+    </a>
+    <nav class="nav" aria-label="Seções">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#atalhos">Atalhos</a>
+      <a href="#duvidas">Dúvidas</a>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Alternar tema claro e escuro">
+        <svg class="ico i-moon"><use href="#i-moon"/></svg><svg class="ico i-sun"><use href="#i-sun"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow" data-reveal>Acesso remoto · Comunidade UFPB</span>
+        <h1 id="hero-title" data-reveal style="--d:.06s">O acervo científico da UFPB, <em>de onde você estiver.</em></h1>
+        <p class="lead" data-reveal style="--d:.12s">A Ponte organiza em dois passos o acesso remoto ao Portal de Periódicos CAPES: autentique-se com sua conta institucional via CAFe e abra o artigo diretamente pelo proxy oficial.</p>
+        <ul class="facts" data-reveal style="--d:.18s">
+          <li><svg class="ico"><use href="#i-shield"/></svg>Autenticação oficial pela federação CAFe</li>
+          <li><svg class="ico"><use href="#i-route"/></svg>Encaminhamento pelo proxy do Portal de Periódicos</li>
+          <li><svg class="ico"><use href="#i-lock"/></svg>Nenhuma senha passa por esta página</li>
+        </ul>
+        <p class="audience" data-reveal style="--d:.24s">Destinado a estudantes, docentes e servidores com vínculo ativo na UFPB.</p>
+      </div>
+
+      <section class="panel" id="acesso" aria-labelledby="panel-title" data-reveal style="--d:.14s">
+        <div class="panel-head">
+          <h2 id="panel-title">Acesso em dois passos</h2>
+          <span class="secure"><svg class="ico"><use href="#i-lock"/></svg>Login no domínio ufpb.br</span>
+        </div>
+        <ol class="steps">
+          <li class="step current" id="step1">
+            <span class="idx" aria-hidden="true"><span class="n">1</span><svg class="ico"><use href="#i-check"/></svg></span>
+            <div class="step-body">
+              <h3>Autentique-se via CAFe</h3>
+              <p class="desc">Entre com suas credenciais institucionais na página oficial de login da UFPB. O procedimento é necessário uma vez por sessão.</p>
+              <div class="actions">
+                <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https://www.periodicos.capes.gov.br/secure&amp;entityID=https://idp-cafe.ufpb.br/idp/shibboleth" target="_blank" rel="noopener">
+                  <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico out"><use href="#i-out"/></svg>
+                </a>
+                <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Autenticação iniciada hoje às <b id="loginTime">--:--</b> neste navegador. Se um artigo abrir na página inicial do Portal, refaça este passo.</span></p>
+              </div>
+            </div>
+          </li>
+          <li class="step" id="step2">
+            <span class="idx" aria-hidden="true"><span class="n">2</span><svg class="ico"><use href="#i-check"/></svg></span>
+            <div class="step-body">
+              <h3>Informe o artigo</h3>
+              <p class="desc">Cole o endereço da página do artigo ou o DOI. Ele será aberto em uma nova aba com o acesso institucional.</p>
+              <form class="actions" id="f" novalidate>
+                <label class="sr" for="in">Endereço ou DOI do artigo</label>
+                <div class="field" id="field">
+                  <svg class="ico"><use href="#i-link"/></svg>
+                  <input type="text" id="in" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.sciencedirect.com/science/article/…">
+                  <span class="kbd" aria-hidden="true" title="Atalho de teclado">/</span>
+                  <button type="button" class="paste" id="pasteBtn"><svg class="ico"><use href="#i-clip"/></svg>Colar</button>
+                </div>
+                <div class="preview" id="preview" hidden aria-live="polite">
+                  <span class="badge" id="pvLabel"></span>
+                  <svg class="ico"><use href="#i-go"/></svg>
+                  <code id="pvUrl"></code>
+                </div>
+                <p class="err" id="err" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span id="errMsg"></span></p>
+                <button class="btn btn-primary btn-block" type="submit">Abrir artigo<svg class="ico go"><use href="#i-go"/></svg></button>
+                <p class="formats"><span>Formatos aceitos:</span><code>https://…</code><code>10.1016/…</code><code>doi.org/…</code></p>
+              </form>
+            </div>
+          </li>
+        </ol>
+        <div class="recent" id="recent" hidden>
+          <div class="recent-head">
+            <h3><svg class="ico"><use href="#i-clock"/></svg>Abertos recentemente</h3>
+            <button class="link-btn" type="button" id="clearRecent">Limpar histórico</button>
+          </div>
+          <ul id="recentList"></ul>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="section" id="como-funciona" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Como funciona</span>
+        <h2 class="title" id="how-title">Um caminho oficial, do login ao texto completo.</h2>
+        <p>Nenhuma barreira é contornada. A Ponte apenas encadeia os serviços que a CAPES e a UFPB já disponibilizam à comunidade acadêmica.</p>
+      </div>
+
+      <div class="flow" role="list" aria-label="Etapas do acesso">
+        <div class="node" role="listitem" data-reveal style="--d:0s"><span class="node-ico"><svg class="ico"><use href="#i-user"/></svg></span><div><strong>Você</strong><small>informa o artigo</small></div></div>
+        <span class="wire" aria-hidden="true" style="--d:0s"></span>
+        <div class="node" role="listitem" data-reveal style="--d:.08s"><span class="node-ico"><svg class="ico"><use href="#i-shield"/></svg></span><div><strong>CAFe · UFPB</strong><small>confirma seu vínculo</small></div></div>
+        <span class="wire" aria-hidden="true" style="--d:.5s"></span>
+        <div class="node" role="listitem" data-reveal style="--d:.16s"><span class="node-ico"><svg class="ico"><use href="#i-route"/></svg></span><div><strong>Proxy CAPES</strong><small><code>ez15.periodicos…</code></small></div></div>
+        <span class="wire" aria-hidden="true" style="--d:1s"></span>
+        <div class="node" role="listitem" data-reveal style="--d:.24s"><span class="node-ico"><svg class="ico"><use href="#i-book"/></svg></span><div><strong>Editora</strong><small>libera o texto completo</small></div></div>
+      </div>
+
+      <div class="pillars">
+        <div class="pillar" data-reveal>
+          <h3><svg class="ico"><use href="#i-shield"/></svg>Identidade institucional</h3>
+          <p>O login acontece exclusivamente no provedor de identidade da UFPB (<code>idp-cafe.ufpb.br</code>), integrado à federação CAFe da RNP.</p>
+        </div>
+        <div class="pillar" data-reveal style="--d:.08s">
+          <h3><svg class="ico"><use href="#i-route"/></svg>Proxy oficial da CAPES</h3>
+          <p>O endereço do artigo é reescrito para o proxy do Portal de Periódicos, que apresenta seu vínculo à editora conforme os contratos vigentes.</p>
+        </div>
+        <div class="pillar" data-reveal style="--d:.16s">
+          <h3><svg class="ico"><use href="#i-eye"/></svg>Privacidade por padrão</h3>
+          <p>Sem servidor próprio, cadastro ou coleta de dados. O histórico de artigos recentes fica apenas neste navegador e pode ser apagado a qualquer momento.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="atalhos" aria-labelledby="short-title">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Acesso rápido</span>
+        <h2 class="title" id="short-title">Tenha a Ponte sempre à mão.</h2>
+        <p>Dois atalhos para incorporar o acesso à sua rotina de pesquisa, sem precisar procurar este endereço.</p>
+      </div>
+
+      <div class="cards">
+        <article class="card" data-reveal>
+          <span class="tag">Computador</span>
+          <h3>Botão na barra de favoritos</h3>
+          <p>Arraste o botão abaixo para a barra de favoritos. Na página de qualquer artigo bloqueado, um clique o reabre pelo acesso da UFPB.</p>
+          <a class="bm" id="bm" href="#" title="Arraste para a barra de favoritos"><svg class="ico"><use href="#i-mark"/></svg>Abrir pela UFPB</a>
+          <div class="demo" aria-hidden="true">
+            <div class="demo-top"><i></i><i></i><i></i><span class="demo-url"></span></div>
+            <div class="demo-marks"><span></span><span></span><span class="slot"><b>Abrir pela UFPB<svg class="cur" viewBox="0 0 24 24"><path d="M5 3l14 7-6 2-2 6z"/></svg></b></span></div>
+            <div class="demo-body"><span></span><span></span><span></span><span></span></div>
+          </div>
+          <p class="note" id="bmHint">Barra de favoritos oculta? Pressione <span class="keys"><kbd data-mod>Ctrl</kbd><kbd>Shift</kbd><kbd>B</kbd></span>. Requer o passo 1 concluído.</p>
+        </article>
+
+        <article class="card" data-reveal style="--d:.08s">
+          <span class="tag">Todos os dispositivos</span>
+          <h3>Salve a Ponte</h3>
+          <p>Adicione esta página aos favoritos com <span class="keys"><kbd data-mod>Ctrl</kbd><kbd>D</kbd></span>. No celular, use a opção <strong>Adicionar à tela de início</strong> do navegador para abri-la como um aplicativo.</p>
+          <div class="homescreen" aria-hidden="true">
+            <span class="app"><i></i>Agenda</span>
+            <span class="app me"><i><svg class="ico"><use href="#i-mark"/></svg></i>Ponte</span>
+            <span class="app"><i></i>SIGAA</span>
+            <span class="app"><i></i>E-mail</span>
+          </div>
+          <button class="btn btn-secondary" id="installBtn" type="button" hidden><svg class="ico"><use href="#i-download"/></svg>Instalar como aplicativo</button>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="duvidas" aria-labelledby="faq-title">
+    <div class="wrap faq-grid">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Dúvidas frequentes</span>
+        <h2 class="title" id="faq-title">Transparência sobre o funcionamento.</h2>
+        <p>O que acontece em cada etapa e como resolver as situações mais comuns.</p>
+      </div>
+      <div class="faq" data-reveal style="--d:.08s">
+        <details>
+          <summary>O uso da Ponte é permitido?<span class="plus" aria-hidden="true"></span></summary>
+          <div class="answer">Sim. A Ponte não contorna nenhuma proteção: ela apenas monta o endereço do proxy oficial do Portal de Periódicos CAPES para o artigo desejado. O acesso só é concedido depois que você se autentica com sua conta institucional no CAFe, dentro dos termos que a CAPES já contrata para a UFPB.</div>
+        </details>
+        <details>
+          <summary>Minha senha passa por esta página?<span class="plus" aria-hidden="true"></span></summary>
+          <div class="answer">Não. O login é feito exclusivamente no servidor de identidade da UFPB (<code>idp-cafe.ufpb.br</code>). Esta página não coleta, armazena nem transmite credenciais.</div>
+        </details>
+        <details>
+          <summary>O artigo abriu na página inicial do Portal CAPES.<span class="plus" aria-hidden="true"></span></summary>
+          <div class="answer">Sua sessão ainda não foi iniciada ou expirou. Refaça o passo 1, conclua o login e abra o artigo novamente pelo passo 2.</div>
+        </details>
+        <details>
+          <summary>O artigo continua pedindo pagamento.<span class="plus" aria-hidden="true"></span></summary>
+          <div class="answer">O periódico, ou o ano de publicação, pode não fazer parte do acervo assinado pela CAPES para a UFPB. Você pode conferir a cobertura buscando o título no <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos</a>.</div>
+        </details>
+        <details>
+          <summary>O botão de PDF não respondeu ao primeiro clique.<span class="plus" aria-hidden="true"></span></summary>
+          <div class="answer">Páginas carregadas pelo proxy podem levar alguns segundos a mais para ficar prontas. Aguarde o carregamento completo antes de solicitar o PDF; cliques repetidos tendem a reiniciar o download.</div>
+        </details>
+        <details>
+          <summary>Por que esta ferramenta existe?<span class="plus" aria-hidden="true"></span></summary>
+          <div class="answer">Com a descontinuação do antigo proxy institucional, o acesso remoto passou a depender do login CAFe diretamente no Portal de Periódicos. A Ponte reúne esse caminho em dois passos para simplificar a rotina de pesquisa.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p class="legal"><svg class="ico"><use href="#i-shield"/></svg><span>A Ponte é uma iniciativa independente, desenvolvida por um estudante da UFPB, sem vínculo oficial com a UFPB, a STI, a CAPES ou a RNP. A ferramenta não armazena conteúdo nem contorna mecanismos de proteção: apenas facilita o exercício de um direito de acesso já garantido à comunidade acadêmica da UFPB pelo Portal de Periódicos CAPES, nos termos de uso do Portal.</span></p>
+    <nav aria-label="Links institucionais">
+      <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos CAPES<svg class="ico"><use href="#i-out"/></svg></a>
+      <a href="https://www.ufpb.br" target="_blank" rel="noopener">Universidade Federal da Paraíba<svg class="ico"><use href="#i-out"/></svg></a>
+    </nav>
+    <div class="copy"><span>© <span id="year">2026</span> Ponte</span><span>Feito na Paraíba para a pesquisa brasileira.</span></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><svg class="ico"><use href="#i-check"/></svg><span id="toastMsg"></span></div>
+
+<script>
+(function(){
+  'use strict';
+  var PREFIX='https://ez15.periodicos.capes.gov.br/login?url=';
+  var SUFFIX='.ez15.periodicos.capes.gov.br';
+  var K={login:'ponte.login',recent:'ponte.recent',theme:'ponte.theme'};
+  var $=function(s){return document.querySelector(s)};
+  var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+  var store={
+    get:function(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+    set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+    del:function(k){try{localStorage.removeItem(k)}catch(e){}}
+  };
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MOD=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent)?'⌘':'Ctrl';
+  $$('[data-mod]').forEach(function(el){el.textContent=MOD});
+
+  /* ---------- Conversão de endereço ---------- */
+  var PUBS=[
+    [/sciencedirect\.com$|elsevier\.com$/,'ScienceDirect'],[/thelancet\.com$/,'The Lancet'],[/cell\.com$/,'Cell Press'],
+    [/nature\.com$/,'Nature'],[/springer\.com$|springeropen\.com$/,'Springer'],[/wiley\.com$/,'Wiley'],
+    [/tandfonline\.com$/,'Taylor & Francis'],[/sagepub\.com$/,'SAGE'],[/ieee\.org$/,'IEEE'],[/acs\.org$/,'ACS'],
+    [/aps\.org$/,'APS'],[/oup\.com$/,'Oxford Academic'],[/cambridge\.org$/,'Cambridge'],[/jstor\.org$/,'JSTOR'],
+    [/nejm\.org$/,'NEJM'],[/jamanetwork\.com$/,'JAMA Network'],[/bmj\.com$/,'BMJ'],[/science\.org$/,'Science'],
+    [/rsc\.org$/,'RSC'],[/emerald\.com$/,'Emerald'],[/lww\.com$/,'Wolters Kluwer'],[/karger\.com$/,'Karger'],
+    [/thieme-connect\.(com|de)$/,'Thieme'],[/annualreviews\.org$/,'Annual Reviews'],[/scopus\.com$/,'Scopus'],
+    [/webofscience\.com$/,'Web of Science'],[/ebsco(host)?\.com$/,'EBSCO'],[/proquest\.com$/,'ProQuest'],[/iop\.org$/,'IOP'],
+    [/mdpi\.com$/,'MDPI'],[/frontiersin\.org$/,'Frontiers'],[/plos\.org$/,'PLOS']
+  ];
+  function publisher(host){
+    for(var i=0;i<PUBS.length;i++) if(PUBS[i][0].test(host)) return PUBS[i][1];
+    return host.replace(/^www\./,'');
+  }
+
+  // Retorna {url, label, display} ou null.
+  function parse(raw){
+    var s=(raw||'').trim();
+    if(!s) return null;
+    var doi=s.match(/(10\.\d{4,9}\/[^\s"<>]+)/);
+    if(doi&&(/^(doi:\s*)?10\./i.test(s)||/doi\.org\//i.test(s))){
+      var d=doi[1].replace(/[.,;)]+$/,'');
+      return {url:PREFIX+'https://doi.org/'+d,label:'DOI',display:d};
+    }
+    if(!/^https?:\/\//i.test(s)) s='https://'+s;
+    var u; try{u=new URL(s)}catch(e){return null}
+    if(u.hostname.indexOf('.')<0) return null;
+    var host=u.hostname, path=u.pathname+u.search;
+    var display=host.replace(/^www\./,'')+(path==='/'?'':path);
+    if(/periodicos\.capes\.gov\.br$/i.test(host)) return {url:'https://'+host+path,label:'Portal CAPES',display:display};
+    // The Lancet e Cell não respondem pelo proxy; o mesmo artigo abre pela ScienceDirect (código PII).
+    var pii=path.match(/PII(S[0-9X()\-]+)/i);
+    if(pii&&/(thelancet|cell)\.com$/i.test(host)) return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:publisher(host)+' · ScienceDirect',display:display};
+    // Demais sites: o domínio vira subdomínio do proxy (hífens dobram, pontos viram hífens).
+    return {url:'https://'+host.replace(/-/g,'--').replace(/\./g,'-')+SUFFIX+path,label:publisher(host),display:display};
+  }
+
+  /* ---------- Tela de carregamento da nova aba ---------- */
+  var LOADING='<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Abrindo artigo · Ponte</title><style>'+
+    'body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F5F3EE;color:#0E1B2C;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px;box-sizing:border-box;text-align:center}'+
+    '.b{max-width:430px}.m{width:48px;height:48px;border-radius:13px;background:#0B3B75;display:grid;place-items:center;margin:0 auto 24px}'+
+    'h1{font:600 1.35rem/1.3 Georgia,"Times New Roman",serif;margin:0;letter-spacing:-.01em}p{color:#3F4B5A;margin:10px 0 0;font-size:.95rem}'+
+    '.r{height:3px;width:180px;border-radius:3px;background:#E2DED5;overflow:hidden;margin:28px auto 0}.r i{display:block;height:100%;width:40%;border-radius:3px;background:#0B3B75;animation:a 1.25s cubic-bezier(.4,0,.2,1) infinite}'+
+    '@keyframes a{from{transform:translateX(-100%)}to{transform:translateX(250%)}}'+
+    '@media(prefers-color-scheme:dark){body{background:#0B1220;color:#E8ECF2}p{color:#AEB8C6}.r{background:#1E2A3E}.r i{background:#8DB4FF}}</style>'+
+    '<div class="b"><div class="m"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h16M6 18.5c0-5 2.7-7.3 6-7.3s6 2.3 6 7.3M8.4 8v4.2M12 8v3.2M15.6 8v4.2"/></svg></div>'+
+    '<h1>Conectando ao acervo da UFPB</h1><p>Encaminhando pelo proxy oficial do Portal de Periódicos CAPES. Aguarde o carregamento completo da página antes de solicitar o PDF.</p><div class="r"><i></i></div></div>';
+
+  function openArticle(url){
+    var w=null;
+    try{w=window.open('','_blank')}catch(e){}
+    if(w){
+      try{w.document.open();w.document.write(LOADING);w.document.close();w.opener=null}catch(e){}
+      w.location.replace(url);
+    }else{
+      var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';
+      document.body.appendChild(a);a.click();a.remove();
+    }
+  }
+
+  /* ---------- Passo 1: estado do login ---------- */
+  var step1=$('#step1'),step2=$('#step2'),loginBtn=$('#loginBtn'),loginLabel=$('#loginLabel'),loginStatus=$('#loginStatus'),loginTime=$('#loginTime');
+  function today(t){return new Date(t).toDateString()===new Date().toDateString()}
+  function hhmm(t){return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+  function renderLogin(){
+    var t=store.get(K.login,0), ok=!!(t&&today(t));
+    step1.classList.toggle('done',ok);
+    step1.classList.toggle('current',!ok);
+    step2.classList.toggle('current',ok);
+    loginStatus.hidden=!ok;
+    if(ok){
+      loginTime.textContent=hhmm(t);
+      loginLabel.textContent='Autenticar novamente';
+      loginBtn.classList.remove('btn-primary');loginBtn.classList.add('btn-secondary');
+    }else{
+      loginLabel.textContent='Entrar com conta UFPB';
+      loginBtn.classList.remove('btn-secondary');loginBtn.classList.add('btn-primary');
+    }
+  }
+  loginBtn.addEventListener('click',function(){
+    store.set(K.login,Date.now());
+    setTimeout(function(){renderLogin();toast('Conclua o login na aba aberta e volte para cá')},400);
+  });
+
+  /* ---------- Passo 2: campo, prévia e envio ---------- */
+  var form=$('#f'),input=$('#in'),field=$('#field'),preview=$('#preview'),pvLabel=$('#pvLabel'),pvUrl=$('#pvUrl'),err=$('#err'),errMsg=$('#errMsg');
+  var warmed={};
+  function warm(url){
+    try{var o=new URL(url).origin}catch(e){return}
+    if(warmed[o]) return; warmed[o]=1;
+    var l=document.createElement('link');l.rel='preconnect';l.href=o;document.head.appendChild(l);
+  }
+  function update(){
+    var v=input.value.trim();
+    field.classList.toggle('has-value',!!v);
+    field.classList.remove('is-error');err.hidden=true;
+    var r=parse(v);
+    if(r){
+      pvLabel.textContent=r.label;
+      pvUrl.textContent=r.url.replace(/^https:\/\//,'');
+      pvUrl.title=r.url;
+      preview.hidden=false;
+      warm(r.url);
+    }else preview.hidden=true;
+  }
+  function showError(m){
+    errMsg.textContent=m;err.hidden=false;
+    field.classList.remove('is-error');void field.offsetWidth;field.classList.add('is-error');
+    input.focus();
+  }
+  input.addEventListener('input',update);
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=input.value.trim(),r=parse(v);
+    if(!r){showError(v?'Não foi possível reconhecer este endereço. Copie o link completo da página do artigo ou informe o DOI.':'Cole o endereço do artigo ou o DOI para continuar.');return}
+    openArticle(r.url);
+    addRecent(r);
+    toast('Artigo aberto em uma nova aba');
+  });
+
+  $('#pasteBtn').addEventListener('click',function(){
+    function fallback(){input.focus();toast('Use '+MOD+' + V para colar o endereço')}
+    if(navigator.clipboard&&navigator.clipboard.readText){
+      navigator.clipboard.readText().then(function(t){
+        t=(t||'').trim();
+        if(!t) return fallback();
+        input.value=t;update();input.focus();
+        toast(parse(t)?'Endereço colado e reconhecido':'Conteúdo colado');
+      },fallback);
+    }else fallback();
+  });
+
+  document.addEventListener('keydown',function(e){
+    var tag=(document.activeElement&&document.activeElement.tagName)||'';
+    if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!/INPUT|TEXTAREA|SELECT/.test(tag)){
+      e.preventDefault();input.focus();input.select();
+    }
+  });
+
+  /* ---------- Histórico local ---------- */
+  var recent=$('#recent'),recentList=$('#recentList');
+  function ago(t){
+    var s=(Date.now()-t)/1000;
+    if(s<60) return 'agora';
+    if(s<3600) return 'há '+Math.floor(s/60)+' min';
+    if(s<86400) return 'há '+Math.floor(s/3600)+' h';
+    if(s<172800) return 'ontem';
+    return new Date(t).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+  }
+  function addRecent(r){
+    var list=store.get(K.recent,[]).filter(function(x){return x&&x.url!==r.url});
+    list.unshift({url:r.url,label:r.label,display:r.display,t:Date.now()});
+    store.set(K.recent,list.slice(0,5));
+    renderRecent();
+  }
+  function renderRecent(){
+    var list=store.get(K.recent,[]);
+    if(!Array.isArray(list)) list=[];
+    recentList.textContent='';
+    recent.hidden=!list.length;
+    list.forEach(function(x){
+      if(!x||typeof x.url!=='string'||!/^https:\/\//.test(x.url)) return;
+      var li=document.createElement('li'),a=document.createElement('a');
+      a.href=x.url;a.target='_blank';a.rel='noopener';
+      var s=document.createElement('span');s.className='src';s.textContent=x.label||'Artigo';
+      var p=document.createElement('span');p.className='path';p.textContent=x.display||x.url;p.title=x.display||x.url;
+      var tm=document.createElement('time');tm.dateTime=new Date(x.t).toISOString();tm.textContent=ago(x.t);
+      a.appendChild(s);a.appendChild(p);a.appendChild(tm);
+      a.addEventListener('click',function(e){if(e.button===0&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){e.preventDefault();openArticle(x.url)}});
+      li.appendChild(a);recentList.appendChild(li);
+    });
+  }
+  $('#clearRecent').addEventListener('click',function(){store.del(K.recent);renderRecent();toast('Histórico apagado deste navegador')});
+
+  /* ---------- Bookmarklet ---------- */
+  var BM="javascript:(function(){var h=location.hostname,p=location.pathname+location.search,S='"+SUFFIX+"';if(/periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/PII(S[0-9X()\\-]+)/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
+  var bm=$('#bm');
+  bm.setAttribute('href',BM);
+  bm.addEventListener('click',function(e){
+    e.preventDefault();
+    bm.classList.remove('nudge');void bm.offsetWidth;bm.classList.add('nudge');
+    toast('Arraste o botão até a barra de favoritos');
+  });
+
+  /* ---------- Toast ---------- */
+  var toastEl=$('#toast'),toastMsg=$('#toastMsg'),toastTimer;
+  function toast(m){
+    toastMsg.textContent=m;toastEl.classList.add('show');
+    clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastEl.classList.remove('show')},2600);
+  }
+
+  /* ---------- Ripple nos botões ---------- */
+  document.addEventListener('pointerdown',function(e){
+    var b=e.target.closest&&e.target.closest('.btn');
+    if(!b||reduce) return;
+    var r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)*2,sp=document.createElement('span');
+    sp.className='ripple';sp.style.width=sp.style.height=d+'px';
+    sp.style.left=(e.clientX-r.left-d/2)+'px';sp.style.top=(e.clientY-r.top-d/2)+'px';
+    b.appendChild(sp);sp.addEventListener('animationend',function(){sp.remove()});
+  });
+
+  /* ---------- Tema ---------- */
+  $('#themeBtn').addEventListener('click',function(){
+    var root=document.documentElement;
+    var cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    var next=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem(K.theme,next)}catch(e){}
+  });
+
+  /* ---------- Barra superior e animações de entrada ---------- */
+  var topEl=$('#top');
+  function onScroll(){topEl.classList.toggle('scrolled',window.scrollY>8)}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  var items=$$('[data-reveal]');
+  if('IntersectionObserver' in window&&!reduce){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}});
+    },{rootMargin:'0px 0px -6% 0px',threshold:.08});
+    items.forEach(function(el){io.observe(el)});
+  }else items.forEach(function(el){el.classList.add('in')});
+
+  /* ---------- App instalável (quando publicado em https) ---------- */
+  var installBtn=$('#installBtn'),deferred=null;
+  if(location.protocol==='https:'||location.hostname==='localhost'){
+    var mf=document.createElement('link');mf.rel='manifest';mf.href='manifest.webmanifest';document.head.appendChild(mf);
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;installBtn.hidden=false});
+  installBtn.addEventListener('click',function(){
+    if(!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(){deferred=null;installBtn.hidden=true});
+  });
+  window.addEventListener('appinstalled',function(){installBtn.hidden=true;toast('Ponte instalada no dispositivo')});
+
+  /* ---------- Inicialização ---------- */
+  $('#year').textContent=new Date().getFullYear();
+  renderLogin();
+  renderRecent();
+  setInterval(function(){renderLogin();renderRecent()},60000);
+})();
+</script>
+</body>
+</html>
