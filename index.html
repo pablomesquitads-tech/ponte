@@ -625,8 +625,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
             <div class="answer">A sessão não foi iniciada ou expirou. Refaça o passo 1 e abra o artigo de novo.</div>
           </details>
           <details>
-            <summary>O artigo continua pedindo pagamento.<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">O periódico, ou o ano de publicação, pode estar fora do acervo assinado para a UFPB. Confira a cobertura buscando o título no <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos</a>.</div>
+            <summary>O artigo pede pagamento ou "Access through your institution".<span class="plus" aria-hidden="true"></span></summary>
+            <div class="answer">Olhe a barra de endereço. Sem <code>periodicos.capes.gov.br</code> no fim, a página saiu do proxy: copie esse endereço e cole na Ponte de novo. Se o endereço já tiver <code>periodicos.capes.gov.br</code>, o periódico ou o ano pode estar fora do acervo assinado para a UFPB. Confira a cobertura buscando o título no <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos</a>.</div>
           </details>
           <details>
             <summary>O botão de PDF não respondeu.<span class="plus" aria-hidden="true"></span></summary>
@@ -718,19 +718,58 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     return /^(?!-)[a-z0-9-]{1,63}(?:\.(?!-)[a-z0-9-]{1,63})+$/i.test(h)&&!/-\./.test(h)&&!/-$/.test(h);
   }
 
+  // Endereços intermediários que embrulham o link do artigo: tela "Access through
+  // your institution" da Springer Nature, redirecionadores do Google/Outlook/Facebook
+  // e a tradução automática do Chrome (www-nature-com.translate.goog).
+  function pick(q,keys){
+    for(var i=0;i<keys.length;i++){var v=q.get(keys[i]);if(v&&/^https?:\/\//i.test(v)) return v}
+    return null;
+  }
+  function unwrap(u){
+    for(var i=0;i<3;i++){
+      var h=u.hostname,q=u.searchParams,next=null;
+      if(/(^|\.)wayf\.springernature\.com$/i.test(h)) next=pick(q,['redirect_uri']);
+      else if(/(^|\.)google\.[a-z.]+$/i.test(h)&&u.pathname==='/url') next=pick(q,['url','q']);
+      else if(/^scholar\.google\./i.test(h)&&u.pathname==='/scholar_url') next=pick(q,['url']);
+      else if(/safelinks\.protection\.outlook\.com$/i.test(h)) next=pick(q,['url']);
+      else if(/^(l|lm)\.facebook\.com$/i.test(h)) next=pick(q,['u']);
+      else if(/\.translate\.goog$/i.test(h)){
+        var real=h.replace(/\.translate\.goog$/i,'').replace(/--/g,'\u0000').replace(/-/g,'.').replace(/\u0000/g,'-');
+        ['_x_tr_sl','_x_tr_tl','_x_tr_hl','_x_tr_pto','_x_tr_hist'].forEach(function(k){q.delete(k)});
+        var qs=q.toString();
+        next='https://'+real+u.pathname+(qs?'?'+qs:'');
+      }
+      if(!next) return u;
+      try{u=new URL(next)}catch(e){return null}
+    }
+    return u;
+  }
+
   // Retorna {url, label, display} ou null.
   function parse(raw){
     var s=(raw||'').trim();
     if(!s||s.length>2048) return null;
     s=s.replace(/^[("'\[]+/,'');
+    // Texto com título e link (o "compartilhar" do celular copia os dois): usa o link.
+    var link=s.match(/https?:\/\/[^\s"'<>]+/i);
+    if(link&&link[0]!==s){
+      s=link[0].replace(/[.,;:!?]+$/,'');
+      while(/\)$/.test(s)&&s.split(')').length>s.split('(').length) s=s.slice(0,-1);
+    }
     if(/doi\.org\//i.test(s)&&/%[0-9a-f]{2}/i.test(s)){try{s=decodeURIComponent(s)}catch(e){}}
     var doi=s.match(/(10\.\d{4,9}\/[^\s"]+)/);
-    if(doi&&(/^(doi:\s*)?10\./i.test(s)||/doi\.org\//i.test(s))){
+    // DOI puro (mesmo no meio de um texto) ou link do doi.org.
+    if(doi&&(!/^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}\//i.test(s)||/doi\.org\//i.test(s))){
       var d=cleanDoi(doi[1]);
       return {url:PREFIX+doiUrl(d),label:'DOI',display:d};
     }
     if(!/^https?:\/\//i.test(s)) s='https://'+s;
     var u; try{u=new URL(s)}catch(e){return null}
+    u=unwrap(u); if(!u) return null;
+    if(/doi\.org$/i.test(u.hostname)&&/^\/10\./.test(u.pathname)){
+      var d2=cleanDoi(decodeURIComponent(u.pathname.slice(1)));
+      return {url:PREFIX+doiUrl(d2),label:'DOI',display:d2};
+    }
     if(u.protocol!=='https:'&&u.protocol!=='http:') return null;
     if(u.username||u.password||u.port) return null;
     if(!publicHost(u.hostname)) return null;
@@ -971,8 +1010,10 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
   /* ---------- Bookmarklet ---------- */
   // Só age em páginas http(s) com domínio público: num PDF local (file:///C:/Users/...)
-  // ou num IP, avisa em vez de mandar o caminho para o proxy.
-  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/(?:PII|\\/)(S\\d{4}-?\\d{3}[\\dX]\\(\\d{2}\\)\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
+  // ou num IP, avisa em vez de mandar o caminho para o proxy. Na tela "Access through
+  // your institution" da Springer Nature e em páginas traduzidas pelo Chrome, usa o
+  // endereço original do artigo.
+  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}var q=new URLSearchParams(L.search),r=q.get('redirect_uri');if(/wayf\\.springernature\\.com$/.test(h)&&r&&/^https?:\\/\\//.test(r)){try{var R=new URL(r);h=R.hostname;p=R.pathname+R.search}catch(e){}}if(/\\.translate\\.goog$/.test(h)){h=h.replace(/\\.translate\\.goog$/,'').split('--').map(function(x){return x.replace(/-/g,'.')}).join('-');p=L.pathname}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/(?:PII|\\/)(S\\d{4}-?\\d{3}[\\dX]\\(\\d{2}\\)\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
   var bm=$('#bm');
   bm.setAttribute('href',BM);
   bm.addEventListener('click',function(e){
