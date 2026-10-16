@@ -813,11 +813,12 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   loginBtn.addEventListener('click',function(e){
     store.set(K.pending,Date.now());renderLogin();
     if(e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey) return;
+    // Abre já no endereço do login (sem passar por about:blank): em app instalado e em
+    // navegadores de celular, navegar a aba depois de aberta pode falhar e deixá-la em branco.
     var w=null;
-    try{w=window.open('','ponte-login')}catch(err){}
-    if(!w) return;
+    try{w=window.open(loginBtn.href,'ponte-login')}catch(err){}
+    if(!w) return;  // bloqueado: o link segue o comportamento normal (target=_blank)
     e.preventDefault();
-    w.location.replace(loginBtn.href);
     loginWin=w;
   });
   // Outra aba da Ponte aberta atualiza junto.
