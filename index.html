@@ -123,22 +123,24 @@ kbd,.kbd{font:500 .72rem/1 var(--mono);color:var(--ink-2);background:var(--surfa
 @media (max-width:760px){.nav a,.nav-sep{display:none}}
 
 /* ---------- Hero ---------- */
-.hero{--overlap:clamp(76px,10vw,136px);position:relative;padding-bottom:clamp(64px,8vw,104px)}
-.hero-band{position:relative;isolation:isolate;overflow:hidden;background:var(--band);color:#fff;padding:calc(68px + clamp(44px,6vw,84px)) 0 calc(var(--overlap) + clamp(44px,5.5vw,72px))}
+.hero{position:relative;isolation:isolate;overflow:hidden;min-height:100vh;min-height:100svh;background:var(--band);color:#fff;padding:calc(68px + clamp(44px,6vw,84px)) 0 clamp(56px,7vw,96px)}
 .hero-media{position:absolute;inset:0;z-index:-2}
-.hero-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 64%}
+.hero-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 38%}
 /* Duotone: a foto em tons de cinza multiplicada pela cor da faixa. O pixel mais claro
    possível vira a própria --band, então o texto branco mantém contraste >= 8:1. */
-.hero-band::before,.hero-band::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
-.hero-band::before{background:var(--band);mix-blend-mode:multiply}
-.hero-band::after{background:radial-gradient(ellipse 55% 60% at 50% 42%,color-mix(in srgb,var(--band-deep) 50%,transparent),transparent 72%),linear-gradient(180deg,color-mix(in srgb,var(--band-deep) 30%,transparent),transparent 30%,transparent 62%,color-mix(in srgb,var(--band-deep) 55%,transparent))}
+.hero::before,.hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+.hero::before{background:var(--band);mix-blend-mode:multiply}
+.hero::after{background:radial-gradient(ellipse 46% 36% at 50% 24%,color-mix(in srgb,var(--band-deep) 32%,transparent),transparent 75%),linear-gradient(180deg,color-mix(in srgb,var(--band-deep) 25%,transparent),transparent 28%,transparent 58%,color-mix(in srgb,var(--band-deep) 70%,transparent))}
 .hero-copy{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:1000px;margin-inline:auto}
 .hero h1{margin:0;color:#fff;font-size:clamp(2.45rem,4.8vw,3.9rem);line-height:1.04;letter-spacing:-.026em}
 .hero h1 .nw{white-space:nowrap}
 .hero h1 em{display:block;margin-top:.04em;color:#B9D0F4}
 .hero .lead{margin:24px auto 0;max-width:31em;color:rgba(234,240,250,.86);text-wrap:pretty}
-.hero-body{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:calc(-1 * var(--overlap))}
-.hero .panel{width:min(100%,580px);text-align:left;border-color:var(--rule-2)}
+.hero-body{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:clamp(32px,4.5vw,48px)}
+.hero .panel{width:min(100%,580px);text-align:left;color:var(--ink);border-color:var(--rule-2);box-shadow:0 30px 70px -28px rgba(0,0,0,.6)}
+.hero .facts li{color:rgba(234,240,250,.86)}
+.hero .facts .ico{color:#B9D0F4}
+.hero .audience{color:rgba(234,240,250,.62)}
 .facts{list-style:none;margin:32px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px}
 .facts li{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--ink-2)}
 .facts .ico{width:17px;height:17px;color:var(--brand)}
@@ -401,14 +403,12 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
 <main id="main">
   <section class="hero" id="inicio" aria-labelledby="hero-title">
-    <div class="hero-band">
-      <div class="hero-media" aria-hidden="true">
-        <img src="img/biblioteca-1600.webp" srcset="img/biblioteca-960.webp 960w, img/biblioteca-1600.webp 1600w, img/biblioteca-2400.webp 2400w" sizes="100vw" width="1600" height="1067" alt="" fetchpriority="high" decoding="async">
-      </div>
-      <div class="wrap hero-copy">
-        <h1 id="hero-title" data-reveal>O acervo dos <span class="nw">Periódicos CAPES,</span> <em>fora do campus.</em></h1>
-        <p class="lead" data-reveal style="--d:.08s">Entre com a conta da UFPB, cole o link ou o DOI e o texto completo abre em nova aba.</p>
-      </div>
+    <div class="hero-media" aria-hidden="true">
+      <img src="img/unb-biblioteca-1280.webp" srcset="img/unb-biblioteca-800.webp 800w, img/unb-biblioteca-1280.webp 1280w, img/unb-biblioteca-1920.webp 1920w" sizes="100vw" width="1280" height="853" alt="" fetchpriority="high" decoding="async">
+    </div>
+    <div class="wrap hero-copy">
+      <h1 id="hero-title" data-reveal>O acervo dos <span class="nw">Periódicos CAPES,</span> <em>fora do campus.</em></h1>
+      <p class="lead" data-reveal style="--d:.08s">Entre com a conta da UFPB, cole o link ou o DOI e o texto completo abre em nova aba.</p>
     </div>
     <div class="wrap hero-body">
       <section class="panel" id="acesso" aria-labelledby="panel-title" data-reveal style="--d:.12s">
@@ -593,7 +593,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
         <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos CAPES<svg class="ico"><use href="#i-out"/></svg></a>
         <a href="https://www.ufpb.br" target="_blank" rel="noopener">Universidade Federal da Paraíba<svg class="ico"><use href="#i-out"/></svg></a>
       </nav>
-      <div class="copy"><span>© <span id="year">2026</span> Ponte <span class="author">· PYMS</span></span><span>Feito na Paraíba para a pesquisa brasileira.</span><span class="credit">Foto do topo: Biblioteca Municipal de Stuttgart, via <a href="https://unsplash.com/s/photos/stadtbibliothek-stuttgart" target="_blank" rel="noopener">Unsplash</a>.</span></div>
+      <div class="copy"><span>© <span id="year">2026</span> Ponte <span class="author">· PYMS</span></span><span>Feito na Paraíba para a pesquisa brasileira.</span><span class="credit">Foto do topo: Biblioteca Central da UnB, por <a href="https://commons.wikimedia.org/wiki/File:Biblioteca_Central_(14978666756).jpg" target="_blank" rel="noopener">Universidade de Brasília</a>, <a href="https://creativecommons.org/licenses/by/2.0/deed.pt-br" target="_blank" rel="noopener">CC BY 2.0</a>; convertida em duotone.</span></div>
     </div>
   </footer>
 
