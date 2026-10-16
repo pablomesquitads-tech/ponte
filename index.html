@@ -209,6 +209,13 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 .status b{color:var(--ink);font-weight:600}
 .status.pending{background:var(--paper-2)}
 .status.pending .ico{color:var(--ink-3)}
+.status.warn{background:var(--err-soft)}
+.status.warn .ico{color:var(--err)}
+/* Mantém o card numa tela: com o aviso visível, some a linha de formatos; com o
+   passo 1 concluído, some a descrição dele. */
+#f:has(#noLogin:not([hidden])) .formats{display:none}
+.step.done .desc{display:none}
+@media (min-width:980px) and (max-height:760px){.step:has(#noLogin:not([hidden])) .desc{display:none}}
 .inline-btn{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--brand);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .inline-btn:hover{color:var(--brand-hover)}
 
@@ -507,6 +514,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
                   <code id="pvUrl"></code>
                 </div>
                 <p class="err" id="err" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span id="errMsg"></span></p>
+                <p class="status warn" id="noLogin" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span>Sem o login do passo 1, o artigo abre na página inicial do Portal. <button type="button" class="inline-btn" id="noLoginGo">Entrar agora</button> · <button type="button" class="inline-btn" id="noLoginOpen">Abrir assim mesmo</button></span></p>
                 <button class="btn btn-primary btn-block" type="submit">Abrir artigo<svg class="ico go"><use href="#i-go"/></svg></button>
                 <p class="formats"><span>Formatos aceitos:</span><code>https://…</code><code>10.1016/…</code><code>doi.org/…</code></p>
               </form>
@@ -792,6 +800,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     loginBtn.classList.toggle('btn-secondary',ok);
   }
   function confirmLogin(){
+    var nl=document.getElementById('noLogin');if(nl) nl.hidden=true;
     store.set(K.login,Date.now());
     store.del(K.pending);
     renderLogin();
@@ -858,6 +867,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     var v=input.value.trim();
     field.classList.toggle('has-value',!!v);
     field.classList.remove('is-error');err.hidden=true;
+    if(noLogin) noLogin.hidden=true;
     var r=parse(v);
     if(r){
       pvLabel.textContent=r.label;
@@ -873,14 +883,25 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     input.focus();
   }
   input.addEventListener('input',update);
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
-    var v=input.value.trim(),r=parse(v);
-    if(!r){showError(v?'Link não reconhecido. Copie o endereço completo da página do artigo ou use o DOI.':'Cole o link ou o DOI do artigo.');return}
+  // Sem o passo 1 confirmado no dia, o proxy manda para a página inicial do Portal:
+  // avisa antes e deixa escolher entre entrar agora ou abrir assim mesmo.
+  var noLogin=$('#noLogin'),heldArticle=null;
+  function loggedToday(){var t=store.get(K.login,0);return !!(t&&today(t))}
+  function launch(r){
+    noLogin.hidden=true;heldArticle=null;
     openArticle(r.url);
     addRecent(r);
     toast('Artigo aberto em nova aba');
+  }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=input.value.trim(),r=parse(v);
+    if(!r){noLogin.hidden=true;showError(v?'Link não reconhecido. Copie o endereço completo da página do artigo ou use o DOI.':'Cole o link ou o DOI do artigo.');return}
+    if(!loggedToday()){heldArticle=r;noLogin.hidden=false;return}
+    launch(r);
   });
+  $('#noLoginGo').addEventListener('click',function(){noLogin.hidden=true;loginBtn.click()});
+  $('#noLoginOpen').addEventListener('click',function(){if(heldArticle) launch(heldArticle)});
 
   $('#pasteBtn').addEventListener('click',function(){
     function fallback(){input.focus();toast('Use '+MOD+' + V para colar')}
