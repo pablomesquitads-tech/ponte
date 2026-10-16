@@ -103,6 +103,7 @@ kbd,.kbd{font:500 .72rem/1 var(--mono);color:var(--ink-2);background:var(--surfa
 .eyebrow::before{content:"";width:28px;height:1px;background:currentColor}
 h1{font:600 clamp(2.35rem,4.7vw,3.7rem)/1.05 var(--serif);letter-spacing:-.022em;margin:22px 0 0;text-wrap:balance}
 h1 em{font-style:italic;font-weight:500;color:var(--brand)}
+h1 .aside{font:400 .36em/1 var(--sans);letter-spacing:0;color:var(--ink-3);white-space:nowrap;text-decoration-thickness:1.5px;vertical-align:.35em}
 .lead{font-size:clamp(1.05rem,1.35vw,1.18rem);line-height:1.65;color:var(--ink-2);margin-top:24px;max-width:33em}
 .facts{list-style:none;margin:36px 0 0;padding:28px 0 0;border-top:1px solid var(--rule);display:grid;gap:14px}
 .facts li{display:flex;align-items:center;gap:12px;font-size:.95rem;color:var(--ink-2)}
@@ -348,14 +349,14 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     <div class="wrap">
       <div class="hero-copy">
         <span class="eyebrow" data-reveal>Acesso remoto · Comunidade UFPB</span>
-        <h1 id="hero-title" data-reveal style="--d:.06s">O acervo científico da UFPB, <em>de onde você estiver.</em></h1>
-        <p class="lead" data-reveal style="--d:.12s">A Ponte organiza em dois passos o acesso remoto ao Portal de Periódicos CAPES: autentique-se com sua conta institucional via CAFe e abra o artigo diretamente pelo proxy oficial.</p>
+        <h1 id="hero-title" data-reveal style="--d:.06s">Uma ponte para o acervo científico <em>dos Periódicos CAPES</em> <s class="aside">(que funciona)</s></h1>
+        <p class="lead" data-reveal style="--d:.12s">Dois passos: entre com sua conta da UFPB pelo CAFe e cole o link ou o DOI do artigo. A Ponte reescreve o endereço para o proxy oficial da CAPES e abre o texto completo.</p>
         <ul class="facts" data-reveal style="--d:.18s">
-          <li><svg class="ico"><use href="#i-shield"/></svg>Autenticação oficial pela federação CAFe</li>
-          <li><svg class="ico"><use href="#i-route"/></svg>Encaminhamento pelo proxy do Portal de Periódicos</li>
+          <li><svg class="ico"><use href="#i-shield"/></svg>Login na página da UFPB, pela federação CAFe</li>
+          <li><svg class="ico"><use href="#i-route"/></svg>Artigo aberto pelo proxy do Portal de Periódicos</li>
           <li><svg class="ico"><use href="#i-lock"/></svg>Nenhuma senha passa por esta página</li>
         </ul>
-        <p class="audience" data-reveal style="--d:.24s">Destinado a estudantes, docentes e servidores com vínculo ativo na UFPB.</p>
+        <p class="audience" data-reveal style="--d:.24s">Serve para estudantes, docentes e servidores com vínculo ativo na UFPB.</p>
       </div>
 
       <section class="panel" id="acesso" aria-labelledby="panel-title" data-reveal style="--d:.14s">
@@ -368,7 +369,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
             <span class="idx" aria-hidden="true"><span class="n">1</span><svg class="ico"><use href="#i-check"/></svg></span>
             <div class="step-body">
               <h3>Autentique-se via CAFe</h3>
-              <p class="desc">Entre com suas credenciais institucionais na página oficial de login da UFPB. O procedimento é necessário uma vez por sessão.</p>
+              <p class="desc">Entre com seu usuário e senha da UFPB na página oficial de login. Basta uma vez por sessão.</p>
               <div class="actions">
                 <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https://www.periodicos.capes.gov.br/secure&amp;entityID=https://idp-cafe.ufpb.br/idp/shibboleth" target="_blank" rel="noopener">
                   <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico out"><use href="#i-out"/></svg>
@@ -381,7 +382,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
             <span class="idx" aria-hidden="true"><span class="n">2</span><svg class="ico"><use href="#i-check"/></svg></span>
             <div class="step-body">
               <h3>Informe o artigo</h3>
-              <p class="desc">Cole o endereço da página do artigo ou o DOI. Ele será aberto em uma nova aba com o acesso institucional.</p>
+              <p class="desc">Cole o link da página do artigo ou o DOI. Ele abre em uma nova aba, já pelo acesso da UFPB.</p>
               <form class="actions" id="f" novalidate>
                 <label class="sr" for="in">Endereço ou DOI do artigo</label>
                 <div class="field" id="field">
@@ -418,7 +419,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       <div class="section-head" data-reveal>
         <span class="eyebrow">Como funciona</span>
         <h2 class="title" id="how-title">Um caminho oficial, do login ao texto completo.</h2>
-        <p>Nenhuma barreira é contornada. A Ponte apenas encadeia os serviços que a CAPES e a UFPB já disponibilizam à comunidade acadêmica.</p>
+        <p>A Ponte não contorna nenhuma barreira. Ela encadeia dois serviços que a UFPB e a CAPES já oferecem: o login CAFe e o proxy do Portal de Periódicos.</p>
       </div>
 
       <div class="flow" role="list" aria-label="Etapas do acesso">
@@ -438,11 +439,11 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
         </div>
         <div class="pillar" data-reveal style="--d:.08s">
           <h3><svg class="ico"><use href="#i-route"/></svg>Proxy oficial da CAPES</h3>
-          <p>O endereço do artigo é reescrito para o proxy do Portal de Periódicos, que apresenta seu vínculo à editora conforme os contratos vigentes.</p>
+          <p>A Ponte reescreve o endereço do artigo para o proxy do Portal de Periódicos, e o proxy mostra à editora que você tem vínculo com uma instituição assinante.</p>
         </div>
         <div class="pillar" data-reveal style="--d:.16s">
-          <h3><svg class="ico"><use href="#i-eye"/></svg>Privacidade por padrão</h3>
-          <p>Sem servidor próprio, cadastro ou coleta de dados. O histórico de artigos recentes fica apenas neste navegador e pode ser apagado a qualquer momento.</p>
+          <h3><svg class="ico"><use href="#i-eye"/></svg>Sem servidor, sem cadastro</h3>
+          <p>A Ponte é uma página estática: não guarda conta, não coleta dados. O histórico de artigos recentes fica só neste navegador, e o botão Limpar histórico o apaga.</p>
         </div>
       </div>
     </div>
@@ -452,8 +453,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     <div class="wrap">
       <div class="section-head" data-reveal>
         <span class="eyebrow">Acesso rápido</span>
-        <h2 class="title" id="short-title">Tenha a Ponte sempre à mão.</h2>
-        <p>Dois atalhos para incorporar o acesso à sua rotina de pesquisa, sem precisar procurar este endereço.</p>
+        <h2 class="title" id="short-title">Deixe a Ponte a um clique.</h2>
+        <p>Um botão na barra de favoritos ou um ícone na tela do celular, para não ter que procurar este endereço de novo.</p>
       </div>
 
       <div class="cards">
@@ -490,8 +491,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     <div class="wrap faq-grid">
       <div class="section-head" data-reveal>
         <span class="eyebrow">Dúvidas frequentes</span>
-        <h2 class="title" id="faq-title">Transparência sobre o funcionamento.</h2>
-        <p>O que acontece em cada etapa e como resolver as situações mais comuns.</p>
+        <h2 class="title" id="faq-title">Antes que você pergunte.</h2>
+        <p>Se é permitido, para onde vai sua senha e o que fazer quando o artigo não abre.</p>
       </div>
       <div class="faq" data-reveal style="--d:.08s">
         <details>
@@ -516,7 +517,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
         </details>
         <details>
           <summary>Por que esta ferramenta existe?<span class="plus" aria-hidden="true"></span></summary>
-          <div class="answer">Com a descontinuação do antigo proxy institucional, o acesso remoto passou a depender do login CAFe diretamente no Portal de Periódicos. A Ponte reúne esse caminho em dois passos para simplificar a rotina de pesquisa.</div>
+          <div class="answer">Com a descontinuação do antigo proxy institucional, o acesso remoto passou a depender do login CAFe diretamente no Portal de Periódicos. A Ponte reduz esse caminho a dois passos e deixa você abrir direto o link da editora, sem buscar o artigo de novo dentro do Portal.</div>
         </details>
       </div>
     </div>
@@ -525,7 +526,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
 <footer class="foot">
   <div class="wrap">
-    <p class="legal"><svg class="ico"><use href="#i-shield"/></svg><span>A Ponte é uma iniciativa independente, desenvolvida por um estudante da UFPB, sem vínculo oficial com a UFPB, a STI, a CAPES ou a RNP. A ferramenta não armazena conteúdo nem contorna mecanismos de proteção: apenas facilita o exercício de um direito de acesso já garantido à comunidade acadêmica da UFPB pelo Portal de Periódicos CAPES, nos termos de uso do Portal.</span></p>
+    <p class="legal"><svg class="ico"><use href="#i-shield"/></svg><span>A Ponte é um projeto independente, feito por um estudante da UFPB, sem vínculo oficial com a UFPB, a STI, a CAPES ou a RNP. Não armazena conteúdo nem contorna proteções: só encurta o caminho até um acesso que a comunidade da UFPB já tem pelo Portal de Periódicos CAPES, nos termos de uso do Portal.</span></p>
     <nav aria-label="Links institucionais">
       <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos CAPES<svg class="ico"><use href="#i-out"/></svg></a>
       <a href="https://www.ufpb.br" target="_blank" rel="noopener">Universidade Federal da Paraíba<svg class="ico"><use href="#i-out"/></svg></a>
@@ -601,7 +602,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     '@keyframes a{from{transform:translateX(-100%)}to{transform:translateX(250%)}}'+
     '@media(prefers-color-scheme:dark){body{background:#0B1220;color:#E8ECF2}p{color:#AEB8C6}.r{background:#1E2A3E}.r i{background:#8DB4FF}}</style>'+
     '<div class="b"><div class="m"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h16M6 18.5c0-5 2.7-7.3 6-7.3s6 2.3 6 7.3M8.4 8v4.2M12 8v3.2M15.6 8v4.2"/></svg></div>'+
-    '<h1>Conectando ao acervo da UFPB</h1><p>Encaminhando pelo proxy oficial do Portal de Periódicos CAPES. Aguarde o carregamento completo da página antes de solicitar o PDF.</p><div class="r"><i></i></div></div>';
+    '<h1>Conectando ao acervo da UFPB</h1><p>Encaminhando pelo proxy oficial do Portal de Periódicos CAPES. Espere a página carregar inteira antes de clicar no PDF.</p><div class="r"><i></i></div></div>';
 
   function openArticle(url){
     var w=null;
