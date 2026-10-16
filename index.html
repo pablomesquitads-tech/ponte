@@ -730,7 +730,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     var display=host.replace(/^www\./,'')+(path==='/'?'':path);
     if(/(^|\.)periodicos\.capes\.gov\.br$/i.test(host)) return {url:'https://'+host+path,label:'Portal CAPES',display:display};
     // The Lancet e Cell não respondem pelo proxy; o mesmo artigo abre pela ScienceDirect (código PII).
-    var pii=path.match(/PII(S[0-9X()\-]+)/i);
+    // O PII aparece como /PIIS0140-6736(20)30183-5/ ou, nas URLs novas da Cell, /fulltext/S0092-8674(20)30229-4.
+    var pii=path.match(/(?:PII|\/)(S\d{4}-?\d{3}[\dX]\(\d{2}\)\d{5}-?[\dX])/i);
     if(pii&&/(thelancet|cell)\.com$/i.test(host)) return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:publisher(host)+' · ScienceDirect',display:display};
     // Demais sites: o domínio vira subdomínio do proxy (hífens dobram, pontos viram hífens).
     return {url:'https://'+host.replace(/-/g,'--').replace(/\./g,'-')+SUFFIX+path,label:publisher(host),display:display};
@@ -944,7 +945,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   /* ---------- Bookmarklet ---------- */
   // Só age em páginas http(s) com domínio público: num PDF local (file:///C:/Users/...)
   // ou num IP, avisa em vez de mandar o caminho para o proxy.
-  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/PII(S[0-9X()\\-]+)/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
+  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h))return;var m=p.match(/(?:PII|\\/)(S\\d{4}-?\\d{3}[\\dX]\\(\\d{2}\\)\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
   var bm=$('#bm');
   bm.setAttribute('href',BM);
   bm.addEventListener('click',function(e){
