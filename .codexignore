@@ -1,0 +1,101 @@
+# ==============================================================================
+# .codexignore — OTIMIZADO PARA ECONOMIA DE TOKENS (SEM PREJUIZO FUNCIONAL)
+# ==============================================================================
+
+# 1. LOCKFILES DE PACOTES (MAIOR ECONOMIA DE TOKENS)
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+**/bun.lockb
+**/composer.lock
+**/Cargo.lock
+**/poetry.lock
+**/Pipfile.lock
+**/packages.lock.json
+
+# 2. DIRETORIOS DE DEPENDENCIAS E RUNTIMES
+**/node_modules/
+**/vendor/
+**/.venv/
+**/venv/
+**/env/
+**/Pods/
+**/packages/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# 3. BUILDS, BUNDLES, SOURCEMAPS E MINIFICACOES
+**/dist/
+**/build/
+**/out/
+**/.vite/
+**/.output/
+**/.next/
+**/.nuxt/
+**/*.map
+**/*.min.js
+**/*.min.css
+**/*.bundle.js
+**/*.chunk.js
+
+# 4. ASSETS, MIDIAS E IMAGENS PESADAS
+**/imagens-questoes/
+**/Imagens/
+**/uploads/
+**/screenshots/
+**/screenshot*.png
+**/logo.png.png
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+**/*.ico
+**/*.avif
+**/*.mp4
+**/*.mp3
+**/*.wav
+**/*.pdf
+**/*.zip
+**/*.tar.gz
+**/*.tgz
+**/*.woff
+**/*.woff2
+**/*.ttf
+**/*.eot
+**/*.otf
+
+# 5. DADOS VOLUMOSOS / DUMPS / MOCKS / RELATORIOS
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+**/*.dump
+**/*.sql.gz
+**/coverage/
+**/.nyc_output/
+**/htmlcov/
+**/lcov.info
+**/__snapshots__/
+**/*.snap
+
+# 6. LOGS, CACHES E METADADOS DE SISTEMA / IDES
+**/*.log
+**/logs/
+**/.turbo/
+**/.cache/
+**/tmp/
+**/temp/
+**/.git/
+**/.DS_Store
+**/Thumbs.db
+**/.idea/
+**/.vscode/
+**/*.swp
+**/*.code-workspace
+
+# 7. DOCUMENTACAO SECUNDARIA E LICENCAS
+**/CHANGELOG*
+**/LICENSE*
+**/LICENCE*
+**/.github/
