@@ -798,8 +798,37 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     return /^(?!-)[a-z0-9-]{1,63}(?:\.(?!-)[a-z0-9-]{1,63})+$/i.test(h)&&!/-\./.test(h)&&!/-$/.test(h);
   }
 
+  // Heurística algorítmica para portais e repositórios acadêmicos de Acesso Aberto (Open Access).
+  // Abrange portais universitários brasileiros e globais (periodicos, revistas, seer, ojs, repositorio, tede),
+  // repositórios científicos (SciELO, Redalyc, PubMed Central, arXiv, Zenodo, etc.)
+  // e editoras abertas mundiais (PLOS, MDPI, Frontiers, BMC, Hindawi, Copernicus, etc.).
+  var OA_REGEX = /(^|\.)(periodicos|revistas|seer|ojs|repositorio|repositorioinstitucional|lume|tede|bdtd)\./i;
+  var OA_VENDORS = /(^|\.)(scielo|redalyc|latindex|ibict|bvs|bvsalud|plos|mdpi|frontiersin|biomedcentral|hindawi|copernicus|degruyteropen|springeropen|wileyopenaccess|arxiv|biorxiv|medrxiv|chemrxiv|preprints|zenodo|osf|figshare|doaj|openedition|scipost|peerj|f1000research|elifesciences|cureus|heliyon|europepmc)\.(org|com|io|net|br)$/i;
+  var OA_GOV = /(^|\.)(ncbi\.nlm\.nih\.gov)$/i;
+
+  function isOpenAccess(h){
+    h=(h||'').toLowerCase();
+    return OA_REGEX.test(h) || OA_VENDORS.test(h) || OA_GOV.test(h);
+  }
+
+  function canonicalHost(h){
+    h=(h||'').toLowerCase();
+    if(h==='nature.com') return 'www.nature.com';
+    if(h==='sciencedirect.com') return 'www.sciencedirect.com';
+    if(h==='tandfonline.com') return 'www.tandfonline.com';
+    if(h==='jstor.org') return 'www.jstor.org';
+    if(h==='springer.com') return 'link.springer.com';
+    if(h==='cambridge.org') return 'www.cambridge.org';
+    if(h==='pnas.org') return 'www.pnas.org';
+    if(h==='science.org') return 'www.science.org';
+    if(h==='scielo.br') return 'www.scielo.br';
+    if(h==='bmj.com') return 'www.bmj.com';
+    if(h==='annualreviews.org') return 'www.annualreviews.org';
+    return h;
+  }
+
   // Endereços intermediários que embrulham o link do artigo: tela "Access through
-  // your institution" da Springer Nature, redirecionadores do Google/Outlook/Facebook
+  // your institution" da Springer Nature, roteadores de trânsito, redirecionadores do Google/Outlook/Facebook
   // e a tradução automática do Chrome (www-nature-com.translate.goog).
   function pick(q,keys){
     for(var i=0;i<keys.length;i++){var v=q.get(keys[i]);if(v&&/^https?:\/\//i.test(v)) return v}
@@ -807,8 +836,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   }
   function unwrap(u){
     for(var i=0;i<3;i++){
-      var h=u.hostname,q=u.searchParams,next=null;
-      if(/(^|\.)wayf\.springernature\.com$/i.test(h)) next=pick(q,['redirect_uri']);
+      var h=u.hostname.toLowerCase(),q=u.searchParams,next=null;
+      if(/(^|\.)(wayf\.springernature|idp\.nature)\.com$/i.test(h)) next=pick(q,['redirect_uri','target']);
       else if(/(^|\.)google\.[a-z.]+$/i.test(h)&&u.pathname==='/url') next=pick(q,['url','q']);
       else if(/^scholar\.google\./i.test(h)&&u.pathname==='/scholar_url') next=pick(q,['url']);
       else if(/safelinks\.protection\.outlook\.com$/i.test(h)) next=pick(q,['url']);
@@ -818,6 +847,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
         ['_x_tr_sl','_x_tr_tl','_x_tr_hl','_x_tr_pto','_x_tr_hist'].forEach(function(k){q.delete(k)});
         var qs=q.toString();
         next='https://'+real+u.pathname+(qs?'?'+qs:'');
+      } else {
+        next=pick(q,['redirect_uri','redirect_url','target_url','target','destination']);
       }
       if(!next) return u;
       try{u=new URL(next)}catch(e){return null}
@@ -825,7 +856,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     return u;
   }
 
-  // Retorna {url, label, display} ou null.
+  // Retorna {url, label, display, isOpenAccess} ou null.
   function parse(raw){
     var s=(raw||'').trim();
     if(!s||s.length>2048) return null;
@@ -834,7 +865,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     // Campo só com o link: usa-o inteiro (DOIs SICI da Wiley têm "<" e ">" no caminho).
     var link=!/\s/.test(s)&&/^https?:\/\//i.test(s)?[s]:s.match(/https?:\/\/[^\s"'<>]+/i);
     if(link) s=trimTail(link[0],/[.,;:!?'"\]>]+$/);
-    if(/doi\.org\//i.test(s)&&/%[0-9a-f]{2}/i.test(s)){try{s=decodeURIComponent(s)}catch(e){}}
+    if(/doi\.org\//i.test(s)&&/%[0-9a-f]{2}/i.test(s)){try{s=decodeURIComponent(s)}catch(e){}
+    }
     var doi=s.match(/(10\.\d{4,9}\/[^\s"]+)/);
     // DOI puro (mesmo no meio de um texto) ou link do doi.org.
     if(doi&&(!/^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}\//i.test(s)||/doi\.org\//i.test(s))){
@@ -852,14 +884,24 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     if(u.protocol!=='https:'&&u.protocol!=='http:') return null;
     if(u.username||u.password||u.port) return null;
     if(!publicHost(u.hostname)) return null;
-    var host=u.hostname, path=u.pathname+u.search;
+
+    var host=canonicalHost(u.hostname), path=u.pathname+u.search;
     var display=host.replace(/^www\./,'')+(path==='/'?'':path);
+
     if(/(^|\.)periodicos\.capes\.gov\.br$/i.test(host)) return {url:'https://'+host+path,label:'Portal CAPES',display:display};
-    // The Lancet e Cell não respondem pelo proxy; o mesmo artigo abre pela ScienceDirect (código PII).
-    // O PII aparece como /PIIS0140-6736(20)30183-5/ ou, nas URLs novas da Cell, /fulltext/S0092-8674(20)30229-4.
-    var pii=path.match(/(?:PII|\/)(S\d{4}-?\d{3}[\dX]\(\d{2}\)\d{5}-?[\dX])/i);
-    if(pii&&/(thelancet|cell)\.com$/i.test(host)) return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:publisher(host)+' · ScienceDirect',display:display};
-    // Demais sites: o domínio vira subdomínio do proxy (hífens dobram, pontos viram hífens).
+
+    // Revistas e repositórios de Acesso Aberto: abre diretamente no domínio oficial em HTTPS, sem proxy e sem login
+    if(isOpenAccess(host)){
+      return {url:'https://'+host+path,label:publisher(host)+' (Acesso Aberto)',display:display,isOpenAccess:true};
+    }
+
+    // The Lancet, Cell, Elsevier e LinkingHub não respondem pelo proxy; o mesmo artigo abre diretamente pela ScienceDirect (código PII).
+    var pii=path.match(/(?:pii[\/=]|\/)([BS0-9a-z()\-]{10,25})/i);
+    if(pii&&/(thelancet|cell|linkinghub\.elsevier)\.com$/i.test(host)){
+      return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:'ScienceDirect',display:display};
+    }
+
+    // Demais sites: o domínio canônico vira subdomínio do proxy (hífens dobram, pontos viram hífens).
     return {url:'https://'+host.replace(/-/g,'--').replace(/\./g,'-')+SUFFIX+path,label:publisher(host),display:display};
   }
 
@@ -997,6 +1039,42 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     addRecent(r);
     toast('Artigo aberto em nova aba');
   }
+  async function launchOrResolve(r){
+    if(r.label === 'DOI'){
+      var submitBtn = form.querySelector('button[type="submit"]');
+      var originalHtml = submitBtn ? submitBtn.innerHTML : '';
+      if(submitBtn){
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Resolvendo artigo...</span>';
+      }
+      try {
+        var res = await fetch('/api/resolve?doi=' + encodeURIComponent(r.display));
+        var data = await res.json();
+        if(res.ok && data.url){
+          var resolvedR = parse(data.url);
+          if(resolvedR && resolvedR.label !== 'DOI'){
+            if(!resolvedR.isOpenAccess && !loggedToday()){
+              heldArticle = resolvedR;
+              noLogin.hidden = false;
+              return;
+            }
+            launch(resolvedR);
+            return;
+          }
+        }
+        showError('Não foi possível identificar a editora deste DOI. Tente colar o link direto da página do artigo.');
+      } catch(err){
+        showError('Erro de conexão ao resolver o DOI. Tente abrir o artigo na editora e colar o link direto.');
+      } finally {
+        if(submitBtn){
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHtml;
+        }
+      }
+      return;
+    }
+    launch(r);
+  }
   form.addEventListener('submit',function(e){
     e.preventDefault();
     var v=input.value.trim(),r=parse(v);
@@ -1005,11 +1083,11 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     // (a volta pode não ter sido detectada, ex.: aba recarregada pelo celular). A aba
     // do login fica aberta: se o login ainda estiver em andamento, dá para terminá-lo.
     if(!loggedToday()&&loginPendingRecent()) confirmLogin();
-    if(!loggedToday()){heldArticle=r;noLogin.hidden=false;return}
-    launch(r);
+    if(r.label !== 'DOI' && !r.isOpenAccess && !loggedToday()){heldArticle=r;noLogin.hidden=false;return}
+    launchOrResolve(r);
   });
   $('#noLoginGo').addEventListener('click',function(){noLogin.hidden=true;loginBtn.click()});
-  $('#noLoginOpen').addEventListener('click',function(){if(heldArticle) launch(heldArticle)});
+  $('#noLoginOpen').addEventListener('click',function(){if(heldArticle) launchOrResolve(heldArticle)});
 
   $('#pasteBtn').addEventListener('click',function(){
     function fallback(){input.focus();toast('Use '+MOD+' + V para colar')}
@@ -1046,10 +1124,10 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     store.set(K.recent,list.slice(0,5));
     renderRecent();
   }
-  // Só reabre endereços que a própria Ponte gera (proxy ou Portal CAPES).
+  // Só reabre endereços que a própria Ponte gera (proxy, Portal CAPES ou periódicos de acesso aberto).
   function safeTarget(url){
     try{var u=new URL(url)}catch(e){return false}
-    return u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&/(^|\.)periodicos\.capes\.gov\.br$/i.test(u.hostname);
+    return u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&(/(^|\.)periodicos\.capes\.gov\.br$/i.test(u.hostname)||isOpenAccess(u.hostname));
   }
   function renderRecent(){
     var list=store.get(K.recent,[]);
