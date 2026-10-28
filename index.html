@@ -534,7 +534,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     <div class="wrap hero-grid">
       <div class="hero-copy">
       <h1 id="hero-title" data-reveal>O acervo dos <span class="nw">Periódicos CAPES,</span> <em>fora do campus.</em></h1>
-      <p class="lead" data-reveal style="--d:.08s">Autentique-se com as credenciais do SIGAA, retorne a esta página e informe o link ou o DOI do artigo. O texto completo será aberto em uma nova aba.</p>
+      <p class="lead" data-reveal style="--d:.08s">Entre com o login do SIGAA, retorne a esta página e cole o link ou o DOI do artigo. O texto completo abre em uma nova aba.</p>
       </div>
       <section class="panel" id="acesso" aria-labelledby="panel-title" data-reveal style="--d:.12s">
         <div class="panel-head">
@@ -545,13 +545,13 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
           <li class="step current" id="step1">
             <span class="idx" aria-hidden="true"><span class="n">1</span><svg class="ico"><use href="#i-check"/></svg></span>
             <div class="step-body">
-              <h3>Autentique-se na UFPB</h3>
-              <p class="desc">A página de autenticação da UFPB será aberta em outra aba. Informe as credenciais do SIGAA e, em seguida, retorne a esta página.</p>
+              <h3>Entre com a conta UFPB</h3>
+              <p class="desc">A página de login da UFPB abre em outra aba. Entre com o SIGAA e retorne a esta página.</p>
               <div class="actions">
                 <a class="btn btn-primary btn-block" id="loginBtn" href="https://www.periodicos.capes.gov.br/Shibboleth.sso/Login?target=https%3A%2F%2Fwww.periodicos.capes.gov.br%2Fsecure&amp;entityID=https%3A%2F%2Fidp-cafe.ufpb.br%2Fidp%2Fshibboleth" target="_blank" rel="noopener">
                   <span id="loginLabel">Entrar com conta UFPB</span><svg class="ico go"><use href="#i-go"/></svg>
                 </a>
-                <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Login confirmado às <b id="loginTime">--:--</b>. Caso o artigo seja exibido na página inicial do Portal, repita este passo.</span></p>
+                <p class="status" id="loginStatus" hidden><svg class="ico"><use href="#i-check"/></svg><span>Login confirmado às <b id="loginTime">--:--</b>. Se o artigo abrir na página inicial do Portal, repita este passo.</span></p>
                 <p class="status pending" id="loginPending" hidden><svg class="ico"><use href="#i-clock"/></svg><span>Já concluiu o login na outra aba? <button type="button" class="inline-btn" id="confirmLogin">Confirmar login</button></span></p>
               </div>
             </div>
@@ -559,8 +559,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
           <li class="step" id="step2">
             <span class="idx" aria-hidden="true"><span class="n">2</span><svg class="ico"><use href="#i-check"/></svg></span>
             <div class="step-body">
-              <h3>Informe o link ou o DOI</h3>
-              <p class="desc">Copie o endereço do artigo no site da editora, ou o respectivo DOI, cole-o no campo abaixo e clique em <strong>Abrir artigo</strong>.</p>
+              <h3>Cole o link ou o DOI</h3>
+              <p class="desc">Copie o endereço do artigo no site da editora, ou o DOI, e clique em <strong>Abrir artigo</strong>.</p>
               <form class="actions" id="f" novalidate>
                 <label class="sr" for="in">Link ou DOI do artigo</label>
                 <div class="field" id="field">
@@ -575,7 +575,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
                   <code id="pvUrl"></code>
                 </div>
                 <p class="err" id="err" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span id="errMsg"></span></p>
-                <p class="status warn" id="noLogin" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span>Sem o login do passo 1, o artigo será exibido na página inicial do Portal, e não no texto completo. <button type="button" class="inline-btn" id="noLoginGo">Entrar agora</button> · <button type="button" class="inline-btn" id="noLoginOpen">Abrir assim mesmo</button></span></p>
+                <p class="status warn" id="noLogin" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span>Sem o login do passo 1, o artigo abre na página inicial do Portal, e não no texto completo. <button type="button" class="inline-btn" id="noLoginGo">Entrar agora</button> · <button type="button" class="inline-btn" id="noLoginOpen">Abrir assim mesmo</button></span></p>
                 <button class="btn btn-primary btn-block" type="submit">Abrir artigo<svg class="ico go"><use href="#i-go"/></svg></button>
                 <p class="formats"><span>Formatos aceitos:</span><code>https://…</code><code>10.1016/…</code><code>doi.org/…</code></p>
               </form>
@@ -594,9 +594,9 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       <ul class="facts" data-reveal style="--d:.18s">
         <li><svg class="ico"><use href="#i-shield"/></svg>Autenticação oficial via CAFe, no servidor da UFPB</li>
         <li><svg class="ico"><use href="#i-route"/></svg>Acesso pelo proxy oficial do Portal de Periódicos</li>
-        <li><svg class="ico"><use href="#i-lock"/></svg>Nenhuma senha é processada por esta página</li>
+        <li><svg class="ico"><use href="#i-lock"/></svg>Nenhuma senha passa por esta página</li>
       </ul>
-      <p class="audience" data-reveal style="--d:.24s">Destinado a discentes, docentes e técnico-administrativos com vínculo ativo na UFPB.</p>
+      <p class="audience" data-reveal style="--d:.24s">Para estudantes, docentes e técnicos com vínculo ativo na UFPB.</p>
       </div>
     </div>
   </section>
@@ -605,41 +605,41 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     <div class="wrap">
       <div class="section-head split" data-reveal>
         <span class="eyebrow">Como funciona</span>
-        <h2 class="title" id="how-title">Um percurso oficial, da autenticação ao texto completo.</h2>
-        <p>A UFPB desativou o proxy próprio que dava acesso aos Periódicos CAPES, e o acesso CAFe pelo Portal apresenta instabilidades frequentes. A Ponte reúne as duas etapas em um fluxo único e direto, sem substituir os serviços oficiais.</p>
+        <h2 class="title" id="how-title">Um caminho oficial, do login ao texto completo.</h2>
+        <p>A UFPB desativou o proxy próprio de acesso aos Periódicos CAPES, e o acesso CAFe pelo Portal costuma falhar. A Ponte reúne as duas etapas em um fluxo direto, sem substituir os serviços oficiais.</p>
       </div>
 
       <ol class="shots" aria-label="Passo a passo">
         <li class="shot" data-reveal style="--d:0s">
           <figure><img src="img/passo-1-ponte.webp" width="720" height="450" alt="Painel da Ponte com o botão Entrar com conta UFPB" loading="lazy" decoding="async"></figure>
-          <div class="shot-txt"><span class="shot-n" aria-hidden="true">1</span><div><strong>Clique em Entrar</strong><small>A página de autenticação da UFPB é aberta em outra aba.</small></div></div>
+          <div class="shot-txt"><span class="shot-n" aria-hidden="true">1</span><div><strong>Clique em Entrar</strong><small>A página da UFPB abre em outra aba.</small></div></div>
         </li>
         <li class="shot" data-reveal style="--d:.08s">
           <figure><img src="img/passo-2-cafe-ufpb.webp" width="720" height="450" alt="Página de login CAFe da UFPB, com os campos login SIGAA e senha" loading="lazy" decoding="async"></figure>
-          <div class="shot-txt"><span class="shot-n" aria-hidden="true">2</span><div><strong>Informe as credenciais do SIGAA</strong><small>A senha é digitada no site da UFPB, e não na Ponte.</small></div></div>
+          <div class="shot-txt"><span class="shot-n" aria-hidden="true">2</span><div><strong>Entre com o SIGAA</strong><small>A senha é digitada no site da UFPB, não na Ponte.</small></div></div>
         </li>
         <li class="shot" data-reveal style="--d:.16s">
           <figure><img src="img/passo-3-portal-capes.webp" width="720" height="450" alt="Página inicial do Portal de Periódicos da CAPES" loading="lazy" decoding="async"></figure>
-          <div class="shot-txt"><span class="shot-n" aria-hidden="true">3</span><div><strong>Retorne à Ponte</strong><small>Quando o Portal da CAPES for exibido, retorne a esta página; a Ponte fechará aquela aba.</small></div></div>
+          <div class="shot-txt"><span class="shot-n" aria-hidden="true">3</span><div><strong>Retorne à Ponte</strong><small>Quando o Portal da CAPES abrir, retorne à Ponte, que fecha aquela aba.</small></div></div>
         </li>
         <li class="shot" data-reveal style="--d:.24s">
           <figure><img src="img/passo-4-ponte-link.webp" width="720" height="450" alt="Ponte com um link da Nature colado e o endereço do proxy da CAPES na prévia" loading="lazy" decoding="async"></figure>
-          <div class="shot-txt"><span class="shot-n" aria-hidden="true">4</span><div><strong>Cole o link e abra o artigo</strong><small>O texto completo é aberto em nova aba, pelo proxy da CAPES.</small></div></div>
+          <div class="shot-txt"><span class="shot-n" aria-hidden="true">4</span><div><strong>Cole o link e abra o artigo</strong><small>O texto completo abre em nova aba, pelo proxy da CAPES.</small></div></div>
         </li>
       </ol>
 
       <div class="pillars">
         <div class="pillar" data-reveal>
           <h3><svg class="ico"><use href="#i-shield"/></svg>Identidade institucional</h3>
-          <p>A autenticação ocorre no servidor da UFPB. A Ponte não tem acesso à sua senha.</p>
+          <p>O login ocorre no servidor da UFPB. A Ponte não tem acesso à sua senha.</p>
         </div>
         <div class="pillar" data-reveal style="--d:.08s">
           <h3><svg class="ico"><use href="#i-route"/></svg>Proxy oficial da CAPES</h3>
-          <p>O artigo é aberto pelo proxy do Portal de Periódicos, sob a assinatura institucional da UFPB.</p>
+          <p>O artigo abre pelo proxy do Portal de Periódicos, com a assinatura institucional da UFPB.</p>
         </div>
         <div class="pillar" data-reveal style="--d:.16s">
           <h3><svg class="ico"><use href="#i-eye"/></svg>Privacidade por padrão</h3>
-          <p>Não há cadastro nem coleta de dados. O histórico de artigos recentes permanece apenas neste navegador.</p>
+          <p>Sem cadastro nem coleta de dados. Os artigos recentes ficam salvos só neste navegador.</p>
         </div>
       </div>
     </div>
@@ -665,7 +665,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
           <div class="card-body">
             <span class="tag">Computador</span>
             <h3>Botão na barra de favoritos</h3>
-            <p>Arraste o botão abaixo até a barra de favoritos. Na página de um artigo com acesso restrito, clique nele para reabri-lo por meio da assinatura da UFPB.</p>
+            <p>Arraste o botão abaixo até a barra de favoritos. Na página de um artigo com acesso restrito, clique nele para reabri-lo pela assinatura da UFPB.</p>
             <a class="bm" id="bm" href="#" title="Arraste para a barra de favoritos"><svg class="ico"><use href="#i-mark"/></svg>Abrir pela UFPB</a>
             <p class="note" id="bmHint">Se a barra estiver oculta, pressione <span class="keys"><kbd data-mod>Ctrl</kbd><kbd>Shift</kbd><kbd>B</kbd></span>. Requer o login do passo&nbsp;1.</p>
           </div>
@@ -684,7 +684,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
             <span class="tag">Todos os dispositivos</span>
             <h3>Salve a Ponte</h3>
             <p>No computador, adicione aos favoritos com <span class="keys"><kbd data-mod>Ctrl</kbd><kbd>D</kbd></span>. No Android, abra o menu do navegador e escolha <strong>Adicionar à tela inicial</strong>. No iPhone, toque em <strong>Compartilhar</strong> e depois em <strong>Adicionar à Tela de Início</strong>.</p>
-            <p class="note">Salva dessa forma, a Ponte é aberta em tela cheia, como um aplicativo.</p>
+            <p class="note">Salva assim, a Ponte abre em tela cheia, como um aplicativo.</p>
             <button class="btn btn-secondary" id="installBtn" type="button" hidden><svg class="ico"><use href="#i-download"/></svg>Instalar como aplicativo</button>
           </div>
         </article>
@@ -701,7 +701,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
         <div class="faq" data-reveal style="--d:.08s">
           <details>
             <summary>Por que usar a Ponte, se já existe o acesso CAFe?<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">O proxy próprio da UFPB para os Periódicos CAPES foi desativado, e o acesso CAFe pelo Portal apresenta instabilidades frequentes: a autenticação costuma ser interrompida ou redirecionar à página inicial, sem levar ao artigo desejado. A Ponte contorna essas falhas ao separar o login da abertura do artigo e ao montar diretamente o endereço do proxy oficial da CAPES a partir do link ou do DOI. O acesso continua sendo o mesmo serviço oficial, apenas por um caminho mais estável.</div>
+            <div class="answer">O proxy próprio da UFPB para os Periódicos CAPES foi desativado, e o acesso CAFe pelo Portal costuma falhar: o login é interrompido ou termina na página inicial, sem chegar ao artigo. A Ponte contorna isso ao separar o login da abertura do artigo e ao montar o endereço do proxy oficial da CAPES direto do link ou do DOI. O serviço é o mesmo; muda só o caminho, mais estável.</div>
           </details>
           <details>
             <summary>O artigo abriu na página inicial do Portal CAPES.<span class="plus" aria-hidden="true"></span></summary>
@@ -709,27 +709,27 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
           </details>
           <details>
             <summary>O artigo solicita pagamento ou exibe "Access through your institution".<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Verifique a barra de endereço. Se o domínio não terminar em <code>periodicos.capes.gov.br</code>, a página deixou de ser acessada pelo proxy: copie o endereço exibido e cole-o novamente na Ponte. Se o domínio já contiver <code>periodicos.capes.gov.br</code>, o periódico, ou o ano de publicação, pode não integrar o acervo assinado para a UFPB. Para confirmar a cobertura, pesquise o título no <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos</a>.</div>
+            <div class="answer">Verifique a barra de endereço. Se o domínio não terminar em <code>periodicos.capes.gov.br</code>, a página saiu do proxy: copie o endereço e cole-o novamente na Ponte. Se o domínio já tiver <code>periodicos.capes.gov.br</code>, o periódico ou o ano pode estar fora do acervo assinado para a UFPB. Para conferir a cobertura, pesquise o título no <a href="https://www.periodicos.capes.gov.br" target="_blank" rel="noopener">Portal de Periódicos</a>.</div>
           </details>
           <details>
             <summary>O botão de download do PDF não respondeu.<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Páginas acessadas pelo proxy tendem a carregar mais lentamente. Aguarde o carregamento completo antes de clicar, pois cliques repetidos podem reiniciar o download.</div>
+            <div class="answer">Páginas abertas pelo proxy carregam mais devagar. Aguarde o carregamento completo antes de clicar; cliques repetidos podem reiniciar o download.</div>
           </details>
           <details>
             <summary>Onde encontro o DOI?<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Na página do artigo, geralmente próximo ao título ou à referência bibliográfica, no formato <code>10.xxxx/…</code>. O DOI pode ser colado com ou sem o prefixo <code>doi.org/</code>.</div>
+            <div class="answer">Na página do artigo, geralmente perto do título ou da referência, no formato <code>10.xxxx/…</code>. O DOI pode ser colado com ou sem o prefixo <code>doi.org/</code>.</div>
           </details>
           <details>
             <summary>Após o login, fui redirecionado ao Portal da CAPES.<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Esse comportamento é esperado, pois a CAPES sempre conclui a autenticação no Portal. Retorne à aba da Ponte: o acesso será confirmado e a aba do Portal, fechada automaticamente. Caso isso não ocorra, toque em <strong>Confirmar login</strong>.</div>
+            <div class="answer">É o comportamento esperado: a CAPES sempre conclui o login no Portal. Retorne à aba da Ponte, que confirma o acesso e fecha a aba do Portal. Se isso não acontecer, toque em <strong>Confirmar login</strong>.</div>
           </details>
           <details>
             <summary>A página de login aparece reduzida no celular.<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">A página pertence à UFPB e não é adaptada a telas pequenas. Toque no campo de login para ampliá-la ou utilize o gesto de pinça para aproximar.</div>
+            <div class="answer">A página é da UFPB e não se adapta a telas pequenas. Toque no campo de login para ampliar, ou aproxime com dois dedos.</div>
           </details>
           <details>
             <summary>Minha senha trafega por esta página? O uso é permitido?<span class="plus" aria-hidden="true"></span></summary>
-            <div class="answer">Não. A autenticação ocorre no servidor da UFPB (<code>idp-cafe.ufpb.br</code>), e esta página não coleta, armazena nem transmite credenciais. Quanto ao uso, a Ponte apenas compõe o endereço do proxy oficial da CAPES; o acesso, portanto, permanece sujeito aos termos contratados pela CAPES para a UFPB.</div>
+            <div class="answer">Não. O login ocorre no servidor da UFPB (<code>idp-cafe.ufpb.br</code>), e esta página não coleta, armazena nem transmite credenciais. Quanto ao uso, a Ponte apenas monta o endereço do proxy oficial da CAPES, e o acesso segue os termos contratados pela CAPES para a UFPB.</div>
           </details>
         </div>
       </div>
@@ -987,7 +987,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     if(p&&Date.now()-p<PENDING_MS&&away>=AUTO_MS){
       confirmLogin();
       closeLoginWin();
-      toast('Login confirmado. Informe o link ou o DOI.');
+      toast('Login confirmado. Cole o link ou o DOI.');
       input.focus({preventScroll:true});
     }else renderLogin();
   }
@@ -999,7 +999,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     confirmLogin();
     closeLoginWin();
     window.focus();
-    toast('Login confirmado. Informe o link ou o DOI.');
+    toast('Login confirmado. Cole o link ou o DOI.');
     input.focus();
   });
   // Volta pelo botão "voltar" (página restaurada do cache): atualiza o estado.
@@ -1083,7 +1083,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   form.addEventListener('submit',function(e){
     e.preventDefault();
     var v=input.value.trim(),r=parse(v);
-    if(!r){noLogin.hidden=true;showError(v?'Link não reconhecido. Copie o endereço completo da página do artigo ou utilize o DOI.':'Informe o link ou o DOI do artigo.');return}
+    if(!r){noLogin.hidden=true;showError(v?'Link não reconhecido. Copie o endereço completo da página do artigo ou utilize o DOI.':'Cole o link ou o DOI do artigo.');return}
     // Clicou em "Entrar" há pouco e já está enviando o artigo: trata como login feito
     // (a volta pode não ter sido detectada, ex.: aba recarregada pelo celular). A aba
     // do login fica aberta: se o login ainda estiver em andamento, dá para terminá-lo.
