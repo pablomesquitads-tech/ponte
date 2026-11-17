@@ -811,6 +811,16 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   var OA_VENDORS = /(^|\.)(scielo|redalyc|latindex|ibict|bvs|bvsalud|plos|mdpi|frontiersin|biomedcentral|hindawi|copernicus|degruyteropen|springeropen|wileyopenaccess|arxiv|biorxiv|medrxiv|chemrxiv|preprints|zenodo|osf|figshare|doaj|openedition|scipost|peerj|f1000research|elifesciences|cureus|heliyon|europepmc)\.(org|com|io|net|br)$/i;
   var OA_GOV = /(^|\.)(ncbi\.nlm\.nih\.gov)$/i;
 
+  // Cochrane Library não está cadastrada no proxy ez15: www-cochranelibrary-com.ez15...
+  // cai em login.ez15.../cdsr/... e devolve "404 Not found", com ou sem login (testado
+  // em 2026-11). As revisões ficam gratuitas no próprio site 12 meses após a publicação
+  // e muitas têm cópia integral no PubMed Central, então a Ponte abre o site direto.
+  var COCHRANE=/(^|\.)cochranelibrary\.com$/i;
+  var COCHRANE_DOI=/^10\.1002\/14651858\./i;
+  function cochrane(path,display){
+    return {url:'https://www.cochranelibrary.com'+path,label:'Cochrane (direto, sem proxy)',display:display,isOpenAccess:true};
+  }
+
   function isOpenAccess(h){
     h=(h||'').toLowerCase();
     return OA_REGEX.test(h) || OA_VENDORS.test(h) || OA_GOV.test(h);
@@ -876,6 +886,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     // DOI puro (mesmo no meio de um texto) ou link do doi.org.
     if(doi&&(!/^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}\//i.test(s)||/doi\.org\//i.test(s))){
       var d=cleanDoi(doi[1]);
+      if(COCHRANE_DOI.test(d)) return cochrane('/cdsr/doi/'+d+'/full',d);
       return {url:PREFIX+doiUrl(d),label:'DOI',display:d};
     }
     if(!/^https?:\/\//i.test(s)) s='https://'+s;
@@ -884,6 +895,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     if(/doi\.org$/i.test(u.hostname)&&/^\/10\./.test(u.pathname)){
       var p2=u.pathname.slice(1);try{p2=decodeURIComponent(p2)}catch(e){}
       var d2=cleanDoi(p2);
+      if(COCHRANE_DOI.test(d2)) return cochrane('/cdsr/doi/'+d2+'/full',d2);
       return {url:PREFIX+doiUrl(d2),label:'DOI',display:d2};
     }
     if(u.protocol!=='https:'&&u.protocol!=='http:') return null;
@@ -892,6 +904,9 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
     var host=canonicalHost(u.hostname), path=u.pathname+u.search;
     var display=host.replace(/^www\./,'')+(path==='/'?'':path);
+
+    // Link da Cochrane, ou o endereço quebrado do proxy (login.ez15.../cdsr/doi/...) colado de volta.
+    if(COCHRANE.test(host)||/^(www-)?cochranelibrary-com\.ez15\./i.test(host)||(/^login\.ez15\./i.test(host)&&/^\/cdsr\//i.test(u.pathname))) return cochrane(path,display);
 
     if(/(^|\.)periodicos\.capes\.gov\.br$/i.test(host)) return {url:'https://'+host+path,label:'Portal CAPES',display:display};
 
@@ -1132,7 +1147,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   // Só reabre endereços que a própria Ponte gera (proxy, Portal CAPES ou periódicos de acesso aberto).
   function safeTarget(url){
     try{var u=new URL(url)}catch(e){return false}
-    return u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&(/(^|\.)periodicos\.capes\.gov\.br$/i.test(u.hostname)||isOpenAccess(u.hostname));
+    return u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&(/(^|\.)periodicos\.capes\.gov\.br$/i.test(u.hostname)||isOpenAccess(u.hostname)||COCHRANE.test(u.hostname));
   }
   function renderRecent(){
     var list=store.get(K.recent,[]);
@@ -1159,7 +1174,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   // your institution" da Springer Nature e em páginas traduzidas pelo Chrome, usa o
   // endereço original do artigo. Num link doi.org, usa o login?url= do proxy, como o
   // formulário; numa página que já está no proxy, avisa em vez de não fazer nada.
-  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"',P='"+PREFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}var q=new URLSearchParams(L.search),r=q.get('redirect_uri');if(/wayf\\.springernature\\.com$/.test(h)&&r&&/^https?:\\/\\//.test(r)){try{var R=new URL(r);h=R.hostname;p=R.pathname+R.search}catch(e){}}if(/\\.translate\\.goog$/.test(h)){h=h.replace(/\\.translate\\.goog$/,'').split('--').map(function(x){return x.replace(/-/g,'.')}).join('-');['_x_tr_sl','_x_tr_tl','_x_tr_hl','_x_tr_pto','_x_tr_hist'].forEach(function(k){q.delete(k)});var Q=q.toString();p=L.pathname+(Q?'?'+Q:'')}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h)){alert('Ponte: esta p\\u00e1gina j\\u00e1 est\\u00e1 aberta pela UFPB. Caso seja solicitado pagamento, fa\\u00e7a o login do passo 1 na Ponte e recarregue a p\\u00e1gina.');return}if(/^(dx\\.)?doi\\.org$/.test(h)&&/^\\/10\\./.test(p)){location.href=P+'https://doi.org'+L.pathname;return}var m=p.match(/(?:PII|\\/)(S\\d{4}-?\\d{3}[\\dX]\\(\\d{2}\\)\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
+  var BM="javascript:(function(){var L=location,h=L.hostname,p=L.pathname+L.search,S='"+SUFFIX+"',P='"+PREFIX+"';if(!/^https?:$/.test(L.protocol)||!/^[a-z0-9-]+(\\.[a-z0-9-]+)+$/i.test(h)||/^[0-9.]+$/.test(h)){alert('Ponte: abra a p\\u00e1gina do artigo no site da editora e clique de novo.');return}var q=new URLSearchParams(L.search),r=q.get('redirect_uri');if(/wayf\\.springernature\\.com$/.test(h)&&r&&/^https?:\\/\\//.test(r)){try{var R=new URL(r);h=R.hostname;p=R.pathname+R.search}catch(e){}}if(/\\.translate\\.goog$/.test(h)){h=h.replace(/\\.translate\\.goog$/,'').split('--').map(function(x){return x.replace(/-/g,'.')}).join('-');['_x_tr_sl','_x_tr_tl','_x_tr_hl','_x_tr_pto','_x_tr_hist'].forEach(function(k){q.delete(k)});var Q=q.toString();p=L.pathname+(Q?'?'+Q:'')}if(/(^|\\.)cochranelibrary\\.com$/.test(h)||(/^login\\.ez15\\./.test(h)&&/^\\/cdsr\\//.test(L.pathname))){alert('Ponte: a Cochrane Library n\\u00e3o passa pelo proxy da CAPES (o proxy responde 404). As revis\\u00f5es ficam gratuitas no site da Cochrane 12 meses ap\\u00f3s a publica\\u00e7\\u00e3o; as mais recentes costumam ter c\\u00f3pia integral no PubMed Central.');return}if(/(^|\\.)periodicos\\.capes\\.gov\\.br$/.test(h)){alert('Ponte: esta p\\u00e1gina j\\u00e1 est\\u00e1 aberta pela UFPB. Caso seja solicitado pagamento, fa\\u00e7a o login do passo 1 na Ponte e recarregue a p\\u00e1gina.');return}if(/^(dx\\.)?doi\\.org$/.test(h)&&/^\\/10\\./.test(p)){location.href=P+'https://doi.org'+L.pathname;return}var m=p.match(/(?:PII|\\/)(S\\d{4}-?\\d{3}[\\dX]\\(\\d{2}\\)\\d{5}-?[\\dX])/i);if(m&&/(thelancet|cell)\\.com$/.test(h)){location.href='https://www-sciencedirect-com'+S+'/science/article/pii/'+m[1].replace(/[()\\-]/g,'');return}location.href='https://'+h.replace(/-/g,'--').replace(/\\./g,'-')+S+p})()";
   var bm=$('#bm');
   bm.setAttribute('href',BM);
   bm.addEventListener('click',function(e){
