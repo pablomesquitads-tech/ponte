@@ -219,7 +219,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 .status.warn .ico{color:var(--err)}
 /* Mantém o card numa tela: com o aviso visível, some a linha de formatos; com o
    passo 1 concluído, some a descrição dele. */
-#f:has(#noLogin:not([hidden])) .formats{display:none}
+#f:has(#noLogin:not([hidden])) .formats,#f:has(#oaBox:not([hidden])) .formats{display:none}
 .step.done .desc{display:none}
 @media (min-width:980px) and (max-height:760px){.step:has(#noLogin:not([hidden])) .desc{display:none}}
 .inline-btn{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--brand);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -574,6 +574,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
                   <svg class="ico"><use href="#i-go"/></svg>
                   <code id="pvUrl"></code>
                 </div>
+                <p class="status" id="oaBox" hidden aria-live="polite"><svg class="ico"><use href="#i-check"/></svg><span><b id="oaTitle">Versão gratuita encontrada</b> <span id="oaWhere"></span><br><button type="button" class="inline-btn" id="oaOpen">Abrir versão gratuita</button><span id="oaAlt"> · <button type="button" class="inline-btn" id="oaProxy">Abrir pela UFPB</button></span></span></p>
                 <p class="err" id="err" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span id="errMsg"></span></p>
                 <p class="status warn" id="noLogin" hidden role="alert"><svg class="ico"><use href="#i-alert"/></svg><span>Sem o login do passo 1, o artigo abre na página inicial do Portal, e não no texto completo. <button type="button" class="inline-btn" id="noLoginGo">Entrar agora</button> · <button type="button" class="inline-btn" id="noLoginOpen">Abrir assim mesmo</button></span></p>
                 <button class="btn btn-primary btn-block" type="submit">Abrir artigo<svg class="ico go"><use href="#i-go"/></svg></button>
@@ -818,7 +819,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   var COCHRANE=/(^|\.)cochranelibrary\.com$/i;
   var COCHRANE_DOI=/^10\.1002\/14651858\./i;
   function cochrane(path,display){
-    return {url:'https://www.cochranelibrary.com'+path,label:'Cochrane (direto, sem proxy)',display:display,isOpenAccess:true};
+    var d=(path.match(/(10\.1002\/14651858\.[^\/?#]+)/i)||[])[1];
+    return {url:'https://www.cochranelibrary.com'+path,label:'Cochrane (direto, sem proxy)',display:display,isOpenAccess:true,doi:d};
   }
 
   function isOpenAccess(h){
@@ -887,7 +889,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     if(doi&&(!/^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}\//i.test(s)||/doi\.org\//i.test(s))){
       var d=cleanDoi(doi[1]);
       if(COCHRANE_DOI.test(d)) return cochrane('/cdsr/doi/'+d+'/full',d);
-      return {url:PREFIX+doiUrl(d),label:'DOI',display:d};
+      return {url:PREFIX+doiUrl(d),label:'DOI',display:d,doi:d};
     }
     if(!/^https?:\/\//i.test(s)) s='https://'+s;
     var u; try{u=new URL(s)}catch(e){return null}
@@ -896,7 +898,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       var p2=u.pathname.slice(1);try{p2=decodeURIComponent(p2)}catch(e){}
       var d2=cleanDoi(p2);
       if(COCHRANE_DOI.test(d2)) return cochrane('/cdsr/doi/'+d2+'/full',d2);
-      return {url:PREFIX+doiUrl(d2),label:'DOI',display:d2};
+      return {url:PREFIX+doiUrl(d2),label:'DOI',display:d2,doi:d2};
     }
     if(u.protocol!=='https:'&&u.protocol!=='http:') return null;
     if(u.username||u.password||u.port) return null;
@@ -912,17 +914,18 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
 
     // Revistas e repositórios de Acesso Aberto: abre diretamente no domínio oficial em HTTPS, sem proxy e sem login
     if(isOpenAccess(host)){
-      return {url:'https://'+host+path,label:publisher(host)+' (Acesso Aberto)',display:display,isOpenAccess:true};
+      // PubMed mostra só o resumo: guarda o link para buscar o texto completo gratuito.
+      return {url:'https://'+host+path,label:publisher(host)+' (Acesso Aberto)',display:display,isOpenAccess:true,src:/^pubmed\.ncbi\.nlm\.nih\.gov$/i.test(host)?'https://'+host+path:undefined};
     }
 
     // The Lancet, Cell, Elsevier e LinkingHub não respondem pelo proxy; o mesmo artigo abre diretamente pela ScienceDirect (código PII).
     var pii=path.match(/(?:pii[\/=]|\/)([BS0-9a-z()\-]{10,25})/i);
     if(pii&&/(thelancet|cell|linkinghub\.elsevier)\.com$/i.test(host)){
-      return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:'ScienceDirect',display:display};
+      return {url:'https://www-sciencedirect-com'+SUFFIX+'/science/article/pii/'+pii[1].replace(/[()\-]/g,''),label:'ScienceDirect',display:display,src:'https://'+host+path};
     }
 
     // Demais sites: o domínio canônico vira subdomínio do proxy (hífens dobram, pontos viram hífens).
-    return {url:'https://'+host.replace(/-/g,'--').replace(/\./g,'-')+SUFFIX+path,label:publisher(host),display:display};
+    return {url:'https://'+host.replace(/-/g,'--').replace(/\./g,'-')+SUFFIX+path,label:publisher(host),display:display,src:'https://'+host+path};
   }
 
   // Abre direto no endereço final, como um link comum: abrir about:blank e navegar
@@ -1034,6 +1037,8 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     field.classList.remove('is-error');err.hidden=true;
     if(noLogin) noLogin.hidden=true;
     var r=parse(v);
+    clearTimeout(oaTimer);oaRender(null,null);
+    if(r&&oaKey(r)) oaTimer=setTimeout(function(){oaLookup(r).then(function(o){if(parse(input.value.trim())&&oaKey(parse(input.value.trim()))===oaKey(r)) oaRender(r,o)})},700);
     if(r){
       pvLabel.textContent=r.label;
       pvUrl.textContent=r.url.replace(/^https:\/\//,'');
@@ -1042,6 +1047,54 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
       clearTimeout(warmTimer);warmTimer=setTimeout(function(){warm(r.url)},600);
     }else{preview.hidden=true;clearTimeout(warmTimer)}
   }
+  /* ---------- Versão gratuita (mesmo mecanismo da extensão Unpaywall) ---------- */
+  // Descobre o DOI (no link ou nas metatags da página) e consulta o Unpaywall pela
+  // função /api/oa. Se houver versão publicada aberta, o envio a prefere: abre sem
+  // login e sem depender do proxy. Preprint e manuscrito aceito só são oferecidos.
+  var oaBox=$('#oaBox'),oaWhere=$('#oaWhere'),oaTitle=$('#oaTitle'),oaAlt=$('#oaAlt');
+  var oaCache={},oaTimer,oaShown=null;
+  var VERSION={publishedVersion:'versão publicada',acceptedVersion:'manuscrito aceito (texto revisado, sem a diagramação final)',submittedVersion:'preprint (antes da revisão por pares)'};
+  function oaKey(r){
+    if(!r) return null;
+    if(r.doi) return 'doi='+encodeURIComponent(r.doi);
+    if(r.src) return 'url='+encodeURIComponent(r.src);
+    return null;
+  }
+  function oaLookup(r){
+    var k=oaKey(r); if(!k) return Promise.resolve(null);
+    if(!oaCache[k]) oaCache[k]=fetch('/api/oa?'+k).then(function(x){return x.ok?x.json():null}).then(function(d){
+      var o=d&&d.oa; if(!o||typeof o.url!=='string') return null;
+      o.url=o.url.replace(/^http:\/\//i,'https://');
+      o.doi=typeof d.doi==='string'?d.doi:null;
+      try{if(new URL(o.url).protocol!=='https:') return null}catch(e){return null}
+      return o;
+    }).catch(function(){delete oaCache[k];return null});
+    return oaCache[k];
+  }
+  function oaWithin(r,ms){return Promise.race([oaLookup(r),new Promise(function(ok){setTimeout(function(){ok(null)},ms)})])}
+  function oaRender(r,o){
+    oaShown=o?{r:r,o:o}:null;
+    if(!o){oaBox.hidden=true;return}
+    var where=o.hostType==='repository'?(/pmc\.ncbi|europepmc/.test(o.host)?'no PubMed Central':'no repositório '+o.host):'no site da editora, liberada pela própria revista';
+    var ver=VERSION[o.version]||'versão aberta';
+    oaTitle.textContent=o.version==='publishedVersion'?'Texto completo gratuito':'Versão gratuita encontrada';
+    oaWhere.textContent='('+ver+', '+where+(o.license?', licença '+o.license.toUpperCase():'')+').';
+    // "Abrir pela UFPB": no PubMed usa o DOI encontrado; a Cochrane não passa pelo proxy.
+    oaAlt.hidden=!!r.isOpenAccess&&!(o.doi&&!COCHRANE_DOI.test(o.doi));
+    oaBox.hidden=false;
+  }
+  function oaOpenFree(o,r){
+    var rec={url:o.url,label:'Acesso aberto · '+(o.host||'grátis'),display:r.display,oa:true};
+    launch(rec);
+  }
+  $('#oaOpen').addEventListener('click',function(){if(oaShown) oaOpenFree(oaShown.o,oaShown.r)});
+  $('#oaProxy').addEventListener('click',function(){
+    if(!oaShown) return; var r=oaShown.r,o=oaShown.o;
+    if(r.isOpenAccess&&o.doi) r={url:PREFIX+doiUrl(o.doi),label:'DOI',display:o.doi,doi:o.doi};
+    if(r.label!=='DOI'&&!r.isOpenAccess&&!loggedToday()){heldArticle=r;noLogin.hidden=false;return}
+    launchOrResolve(r,true);
+  });
+
   function showError(m){
     errMsg.textContent=m;err.hidden=false;
     field.classList.remove('is-error');void field.offsetWidth;field.classList.add('is-error');
@@ -1059,7 +1112,11 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     addRecent(r);
     toast('Artigo aberto em uma nova aba');
   }
-  async function launchOrResolve(r){
+  async function launchOrResolve(r,skipOa){
+    if(!skipOa){
+      var o=await oaWithin(r,3000);
+      if(o&&o.version==='publishedVersion'){oaRender(r,o);oaOpenFree(o,r);return}
+    }
     if(r.label === 'DOI'){
       var submitBtn = form.querySelector('button[type="submit"]');
       var originalHtml = submitBtn ? submitBtn.innerHTML : '';
@@ -1103,11 +1160,17 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     // (a volta pode não ter sido detectada, ex.: aba recarregada pelo celular). A aba
     // do login fica aberta: se o login ainda estiver em andamento, dá para terminá-lo.
     if(!loggedToday()&&loginPendingRecent()) confirmLogin();
-    if(r.label !== 'DOI' && !r.isOpenAccess && !loggedToday()){heldArticle=r;noLogin.hidden=false;return}
+    if(r.label !== 'DOI' && !r.isOpenAccess && !loggedToday()){
+      oaWithin(r,3000).then(function(o){
+        if(o&&o.version==='publishedVersion'){oaRender(r,o);oaOpenFree(o,r)}
+        else{heldArticle=r;noLogin.hidden=false}
+      });
+      return;
+    }
     launchOrResolve(r);
   });
   $('#noLoginGo').addEventListener('click',function(){noLogin.hidden=true;loginBtn.click()});
-  $('#noLoginOpen').addEventListener('click',function(){if(heldArticle) launchOrResolve(heldArticle)});
+  $('#noLoginOpen').addEventListener('click',function(){if(heldArticle) launchOrResolve(heldArticle,true)});
 
   $('#pasteBtn').addEventListener('click',function(){
     function fallback(){input.focus();toast('Use '+MOD+' + V para colar')}
@@ -1140,7 +1203,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
   }
   function addRecent(r){
     var list=store.get(K.recent,[]).filter(function(x){return x&&x.url!==r.url});
-    list.unshift({url:r.url,label:r.label,display:r.display,t:Date.now()});
+    list.unshift({url:r.url,label:r.label,display:r.display,oa:!!r.oa,t:Date.now()});
     store.set(K.recent,list.slice(0,5));
     renderRecent();
   }
@@ -1153,7 +1216,7 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand)}
     var list=store.get(K.recent,[]);
     if(!Array.isArray(list)) list=[];
     recentList.textContent='';
-    list=list.filter(function(x){return x&&typeof x.url==='string'&&safeTarget(x.url)});
+    list=list.filter(function(x){return x&&typeof x.url==='string'&&(safeTarget(x.url)||(x.oa===true&&/^https:\/\//i.test(x.url)))});
     recent.hidden=!list.length;
     list.forEach(function(x){
       if(typeof x.t!=='number'||!isFinite(x.t)||x.t<0) x.t=Date.now();
